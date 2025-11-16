@@ -17,8 +17,19 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            
+            // CAMR-specific fields
+            $table->string('job_title')->nullable();
+            $table->string('role')->default('user'); // admin, user
+            $table->string('access_level')->default('selected'); // all, selected
+            $table->date('expires_at')->nullable();
+            $table->boolean('is_active')->default(true);
+            
             $table->rememberToken();
             $table->timestamps();
+            
+            $table->index('role');
+            $table->index('is_active');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -13,11 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        // Create test user without 2FA
+        User::factory()->withoutTwoFactor()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // Seed CAMR data
+        $this->call([
+            SiteSeeder::class,
         ]);
     }
 }
