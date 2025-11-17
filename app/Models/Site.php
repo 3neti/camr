@@ -27,7 +27,7 @@ class Site extends Model
         'last_log_update' => 'datetime',
     ];
 
-    protected $appends = ['status'];
+    protected $appends = ['status', 'status_label'];
 
     public function company(): BelongsTo
     {
@@ -95,13 +95,24 @@ class Site extends Model
         });
     }
 
-    // Status attribute
-    public function getStatusAttribute(): string
+    /**
+     * Get the site's status based on its gateways.
+     * A site is considered 'online' if at least one gateway has reported within the last 15 minutes.
+     */
+    public function getStatusAttribute(): bool
     {
-        if (!$this->last_log_update) {
-            return 'No Data';
-        }
-
-        return $this->last_log_update->isAfter(now()->subDay()) ? 'Online' : 'Offline';
+        // Check if any gateway has recent activity (within last 15 minutes)
+        return $this->gateways()
+            ->whereNotNull('last_log_update')
+            ->where('last_log_update', '>=', now()->subMinutes(15))
+            ->exists();
+    }
+    
+    /**
+     * Get human-readable status label
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return $this->status ? 'Online' : 'Offline';
     }
 }

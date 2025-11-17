@@ -37,7 +37,8 @@ interface Site {
   code: string
   company: { id: number; name: string }
   division: { id: number; name: string }
-  status: string
+  status: boolean
+  status_label: string
   last_log_update: string | null
   created_at: string
 }
@@ -76,12 +77,8 @@ watch(search, () => {
   debouncedSearch()
 })
 
-const getStatusColor = (status: string) => {
-  return status === 'Online'
-    ? 'bg-green-500'
-    : status === 'Offline'
-    ? 'bg-red-500'
-    : 'bg-gray-500'
+const getStatusColor = (status: boolean) => {
+  return status ? 'bg-green-500' : 'bg-red-500'
 }
 
 const deleteSite = (site: Site) => {
@@ -136,7 +133,7 @@ function exportSites() {
     { key: 'code', label: 'Code' },
     { key: 'company.name', label: 'Company' },
     { key: 'division.name', label: 'Division' },
-    { key: 'status', label: 'Status' },
+    { key: 'status_label', label: 'Status' },
     { key: 'last_log_update', label: 'Last Update' },
     { key: 'created_at', label: 'Created At' },
   ]
@@ -238,7 +235,7 @@ function exportSites() {
                 <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('company')">Company</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('division')">Division</TableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('status')">Status</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('last_update')">Last Update</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
@@ -261,7 +258,7 @@ function exportSites() {
                 <TableCell v-if="columnPrefs.isColumnVisible('division')">{{ site.division.name }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('status')">
                   <Badge :class="getStatusColor(site.status)" variant="outline">
-                    {{ site.status }}
+                    {{ site.status_label }}
                   </Badge>
                 </TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('last_update')">

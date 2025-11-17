@@ -10,18 +10,21 @@ use Inertia\Response;
 
 class SiteController extends Controller
 {
-    public function index(Request $request): Response
+public function index(Request $request): Response
     {
-        $query = Site::with(['company', 'division'])
+        $query = Site::with(['company', 'division', 'gateways' => function ($q) {
+                // Only load gateway data needed for status calculation
+                $q->select('id', 'site_id', 'last_log_update');
+            }])
             ->when($request->search, function ($query, $search) {
                 $query->where('code', 'like', "%{$search}%");
             });
 
-        // Sorting
+        // Sorting (status is computed so we can't sort by it in SQL)
         $sortColumn = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         
-        if (in_array($sortColumn, ['code', 'status', 'created_at'])) {
+        if (in_array($sortColumn, ['code', 'created_at'])) {
             $query->orderBy($sortColumn, $sortDirection);
         } else {
             $query->latest();
