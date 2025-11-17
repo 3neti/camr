@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     {
         // Create admin user if doesn't exist
         if (!User::where('email', 'admin@example.com')->exists()) {
-            User::factory()->withoutTwoFactor()->create([
+            User::create([
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
                 'password' => bcrypt('password'),
@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
                 'job_title' => 'System Administrator',
                 'access_level' => 'all',
                 'is_active' => true,
+                'email_verified_at' => now(),
             ]);
             
             $this->command->info('Created admin user: admin@example.com (password: password)');
@@ -27,7 +28,7 @@ class UserSeeder extends Seeder
 
         // Create regular test user if doesn't exist
         if (!User::where('email', 'test@example.com')->exists()) {
-            User::factory()->withoutTwoFactor()->create([
+            User::create([
                 'name' => 'Test User',
                 'email' => 'test@example.com',
                 'password' => bcrypt('password'),
@@ -35,6 +36,7 @@ class UserSeeder extends Seeder
                 'job_title' => 'Site Manager',
                 'access_level' => 'selected',
                 'is_active' => true,
+                'email_verified_at' => now(),
             ]);
             
             $this->command->info('Created test user: test@example.com (password: password)');
@@ -55,7 +57,7 @@ class UserSeeder extends Seeder
                 $email = strtolower(str_replace(' ', '.', $jobTitle)).'@example.com';
                 
                 if (!User::where('email', $email)->exists()) {
-                    User::factory()->withoutTwoFactor()->create([
+                    User::create([
                         'name' => str_replace('.', ' ', ucwords(str_replace('@example.com', '', $email))),
                         'email' => $email,
                         'password' => bcrypt('password'),
@@ -63,6 +65,7 @@ class UserSeeder extends Seeder
                         'job_title' => $jobTitle,
                         'access_level' => $index === 0 ? 'all' : 'selected',
                         'is_active' => true,
+                        'email_verified_at' => now(),
                     ]);
                 }
             }

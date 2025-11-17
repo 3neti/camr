@@ -19,20 +19,29 @@ class MeterSeeder extends Seeder
             return;
         }
 
-        $meterCount = Meter::count();
+$meterCount = Meter::count();
 
         if ($meterCount < 40) {
+            $meterNum = $meterCount + 1;
+            $meterTypes = ['Electric', 'Water', 'Gas', 'Steam'];
+            $brands = ['Schneider', 'ABB', 'Siemens', 'Landis+Gyr', 'Itron'];
+            
             foreach ($gateways->take(10) as $gateway) {
                 // Create 3-5 meters per gateway
                 $count = rand(3, 5);
                 for ($i = 0; $i < $count; $i++) {
-                    Meter::factory()->create([
+                    Meter::create([
                         'gateway_id' => $gateway->id,
                         'site_id' => $gateway->site_id,
                         'location_id' => $locations->isNotEmpty() ? $locations->random()->id : null,
-                        // Enable load profiles for ~50% of meters
+                        'name' => 'MTR-' . str_pad($meterNum, 4, '0', STR_PAD_LEFT),
+                        'type' => $meterTypes[array_rand($meterTypes)],
+                        'brand' => $brands[array_rand($brands)],
+                        'customer_name' => 'Customer ' . chr(65 + ($meterNum % 26)),
                         'has_load_profile' => rand(0, 1) === 1,
+                        'status' => 'Active',
                     ]);
+                    $meterNum++;
                 }
             }
 

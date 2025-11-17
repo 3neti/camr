@@ -21,6 +21,7 @@ class LocationSeeder extends Seeder
 $locationCount = Location::count();
 
         if ($locationCount < 20) {
+            $locationNum = 1;
             foreach ($sites as $site) {
                 // Get buildings for this site
                 $siteBuildings = Building::where('site_id', $site->id)->get();
@@ -28,12 +29,13 @@ $locationCount = Location::count();
                 // Create 2-3 locations per site
                 $count = rand(2, 3);
                 for ($i = 0; $i < $count; $i++) {
-                    Location::factory()->create([
+                    Location::create([
                         'site_id' => $site->id,
-                        // ~50% chance to link with a building
                         'building_id' => $siteBuildings->isNotEmpty() && rand(0, 1) === 1 
                             ? $siteBuildings->random()->id 
                             : null,
+                        'code' => 'EER-' . str_pad($locationNum++, 2, '0', STR_PAD_LEFT),
+                        'description' => 'EE Room ' . $i,
                     ]);
                 }
             }

@@ -21,10 +21,14 @@ class ConfigurationFileSeeder extends Seeder
                 'Itron Alpha Plus',
             ];
 
-            foreach ($meterModels as $model) {
+foreach ($meterModels as $model) {
                 if (!ConfigurationFile::where('meter_model', $model)->exists()) {
-                    ConfigurationFile::factory()->create([
+                    ConfigurationFile::create([
                         'meter_model' => $model,
+                        'config_file_content' => json_encode([
+                            'model' => $model,
+                            'configuration' => 'Default configuration for ' . $model
+                        ]),
                     ]);
                 }
             }

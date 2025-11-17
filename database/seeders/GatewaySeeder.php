@@ -24,13 +24,24 @@ class GatewaySeeder extends Seeder
         $gatewayCount = Gateway::count();
         $toCreate = max(0, 15 - $gatewayCount);
 
-        if ($toCreate > 0) {
+if ($toCreate > 0) {
+            $gatewayNum = $gatewayCount + 1;
             foreach ($sites->take(5) as $site) {
                 // Create 3-4 gateways per site
-                Gateway::factory()->count(rand(3, 4))->create([
-                    'site_id' => $site->id,
-                    'location_id' => $locations->isNotEmpty() ? $locations->random()->id : null,
-                ]);
+                $count = rand(3, 4);
+                for ($i = 0; $i < $count; $i++) {
+                    Gateway::create([
+                        'site_id' => $site->id,
+                        'location_id' => $locations->isNotEmpty() ? $locations->random()->id : null,
+                        'serial_number' => 'GW-' . str_pad($gatewayNum, 6, '0', STR_PAD_LEFT),
+                        'mac_address' => sprintf('%02X:%02X:%02X:%02X:%02X:%02X', 
+                            rand(0, 255), rand(0, 255), rand(0, 255), 
+                            rand(0, 255), rand(0, 255), rand(0, 255)),
+                        'ip_address' => '192.168.' . rand(1, 254) . '.' . rand(1, 254),
+                        'connection_type' => 'LAN',
+                    ]);
+                    $gatewayNum++;
+                }
             }
 
             $this->command->info("Created {$toCreate} gateways. Total: ".Gateway::count());
