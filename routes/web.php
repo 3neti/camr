@@ -36,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/energy-summary', [\App\Http\Controllers\Api\ReportsController::class, 'meterEnergySummary']);
         Route::get('/comparison', [\App\Http\Controllers\Api\ReportsController::class, 'meterComparison']);
     });
+    
+    // Global search
+    Route::get('api/search', [\App\Http\Controllers\Api\SearchController::class, 'search']);
 });
 
 require __DIR__.'/settings.php';
