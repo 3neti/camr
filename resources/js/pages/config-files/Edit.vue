@@ -25,7 +25,7 @@ const form = useForm({
 })
 
 function submit() {
-  form.put(configFiles.update({ configFile: props.configFile.id }).url)
+  form.put(configFiles.update({ config_file: props.configFile.id }).url)
 }
 </script>
 

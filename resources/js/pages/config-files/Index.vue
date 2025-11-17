@@ -99,13 +99,13 @@ function handleSort(column: string) {
                 <TableCell>{{ new Date(config.created_at).toLocaleDateString() }}</TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">
-                    <Button variant="ghost" size="sm" @click="router.visit(configFiles.show({ configFile: config.id }).url)">
+                    <Button variant="ghost" size="sm" @click="router.visit(configFiles.show({ config_file: config.id }).url)">
                       <Eye class="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" @click="router.visit(configFiles.edit({ configFile: config.id }).url)">
+                    <Button variant="ghost" size="sm" @click="router.visit(configFiles.edit({ config_file: config.id }).url)">
                       <Pencil class="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" @click="router.delete(configFiles.destroy({ configFile: config.id }).url)">
+                    <Button variant="ghost" size="sm" @click="router.delete(configFiles.destroy({ config_file: config.id }).url)">
                       <Trash2 class="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

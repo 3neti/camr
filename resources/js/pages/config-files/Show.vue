@@ -43,7 +43,7 @@ const props = defineProps<Props>()
             <p class="text-muted-foreground">{{ configFile.meters.length }} meters using this config</p>
           </div>
         </div>
-        <Link :href="configFiles.edit({ configFile: configFile.id }).url">
+        <Link :href="configFiles.edit({ config_file: configFile.id }).url">
           <Button><Pencil class="h-4 w-4 mr-2" />Edit Config</Button>
         </Link>
       </div>
