@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Building;
 use App\Models\Location;
 use App\Models\Site;
 use Illuminate\Database\Seeder;
@@ -17,14 +18,24 @@ class LocationSeeder extends Seeder
             return;
         }
 
-        $locationCount = Location::count();
+$locationCount = Location::count();
 
         if ($locationCount < 20) {
             foreach ($sites as $site) {
+                // Get buildings for this site
+                $siteBuildings = Building::where('site_id', $site->id)->get();
+                
                 // Create 2-3 locations per site
-                Location::factory()->count(rand(2, 3))->create([
-                    'site_id' => $site->id,
-                ]);
+                $count = rand(2, 3);
+                for ($i = 0; $i < $count; $i++) {
+                    Location::factory()->create([
+                        'site_id' => $site->id,
+                        // ~50% chance to link with a building
+                        'building_id' => $siteBuildings->isNotEmpty() && rand(0, 1) === 1 
+                            ? $siteBuildings->random()->id 
+                            : null,
+                    ]);
+                }
             }
 
             $this->command->info('Created locations. Total: '.Location::count());
