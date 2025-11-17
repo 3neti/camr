@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
         // Seed CAMR data
         $this->call([
             SiteSeeder::class,
+            LocationSeeder::class,
+            GatewaySeeder::class,
         ]);
     }
 }

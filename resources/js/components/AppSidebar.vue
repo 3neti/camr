@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import * as sites from '@/actions/App/Http/Controllers/SiteController';
+import * as gateways from '@/actions/App/Http/Controllers/GatewayController';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, MapPin } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, MapPin, Radio } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -28,6 +29,11 @@ const mainNavItems: NavItem[] = [
         title: 'Sites',
         href: sites.index().url,
         icon: MapPin,
+    },
+    {
+        title: 'Gateways',
+        href: gateways.index().url,
+        icon: Radio,
     },
 ];
 

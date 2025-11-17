@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { router, Link } from '@inertiajs/vue3'
+import { router, Link, Head } from '@inertiajs/vue3'
 import * as sites from '@/actions/App/Http/Controllers/SiteController'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

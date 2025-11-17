@@ -14,9 +14,11 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// CAMR Sites Management
+// CAMR Management
 Route::middleware(['auth'])->group(function () {
     Route::resource('sites', \App\Http\Controllers\SiteController::class);
+    Route::resource('gateways', \App\Http\Controllers\GatewayController::class);
+    Route::resource('meters', \App\Http\Controllers\MeterController::class);
 });
 
 require __DIR__.'/settings.php';
