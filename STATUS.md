@@ -1,6 +1,6 @@
 # CAMR Development Status
 
-**Last Updated:** 2025-01-17 1:15 PM
+**Last Updated:** 2025-01-17 1:45 PM
 **Current Branch:** main
 **All Tests:** ✅ 156 passing (733 assertions) +44% coverage
 
@@ -33,23 +33,20 @@
 - ✅ Added 3 routes: sites/bulk-delete, gateways/bulk-delete, users/bulk-delete
 - ✅ Committed: commit 7493a71
 
-#### ⏳ D. Add Column Sorting (BACKEND DONE)
+#### ✅ D. Add Column Sorting (COMPLETE)
 - ✅ Created useSortable composable
 - ✅ Added backend sorting to all 6 controllers (Site, Gateway, Meter, Building, ConfigFile, User)
-- ✅ 30+ sortable columns across all modules
-- ⏸️ Frontend integration pending (would require updating 6 Index pages)
-- ✅ Committed: commits dff7b37, a9c6c1c
+- ✅ Created SortableTableHead component with visual indicators
+- ✅ Integrated sorting into all 6 Index pages
+- ✅ 30+ sortable columns with clickable headers and ↑/↓ icons
+- ✅ Filter preservation when sorting
+- ✅ Committed: commits dff7b37, a9c6c1c, 0301d62
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
-**Priority 1:** Frontend Sorting Integration (20-30 min)
-- Apply useSortable composable to 6 Index pages
-- Add clickable column headers with sort indicators
-- Test sorting on each module
-
-**Priority 2:** Advanced Features (1-2 hours)
+**Priority 1:** Advanced Features (1-2 hours)
 - CSV/Excel import for meters
 - Advanced reports with date ranges and filtering
 - Location Management completion
@@ -87,7 +84,8 @@
 - Controllers: 9 resource controllers (all with CRUD + bulk delete + sorting)
 - Models: 10 Eloquent models with factories
 - Vue Pages: 36 (all complete) ✅
-- Composables: 5 (useFlash, useBulkActions, useAppearance, useSortable, more)
+- Composables: 5 (useFlash, useBulkActions, useAppearance, useSortable, useAuth)
+- Components: SortableTableHead (reusable sorting component)
 - API Endpoints: 3 for charts
 - Bulk Operations: 4 modules (Sites, Gateways, Meters, Users)
 - Test Coverage: 156 tests covering CRUD, validation, bulk ops, sorting
@@ -168,11 +166,12 @@ resources/js/
 - [x] Building UI pages ✅ 
 - [x] Config Files UI pages ✅
 - [x] Bulk operations everywhere ✅
-- [x] Column sorting (backend complete) ✅
+- [x] Column sorting (complete - backend + frontend) ✅
 - [x] Comprehensive tests ✅ +48 tests
-- [ ] Frontend sorting UI integration (optional)
+- [x] Frontend sorting UI with visual indicators ✅
 - [ ] Database optimization (future)
 - [ ] Location Management (future)
+- [ ] Advanced features (import, export, reports)
 
 ### Future Sessions
 - Real-time updates (WebSockets)
