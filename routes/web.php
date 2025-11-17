@@ -17,9 +17,11 @@ Route::get('dashboard', function () {
 // CAMR Management
 Route::middleware(['auth'])->group(function () {
     Route::resource('sites', \App\Http\Controllers\SiteController::class);
+    Route::resource('buildings', \App\Http\Controllers\BuildingController::class);
     Route::resource('gateways', \App\Http\Controllers\GatewayController::class);
     Route::resource('meters', \App\Http\Controllers\MeterController::class);
     Route::post('meters/bulk-delete', [\App\Http\Controllers\MeterController::class, 'bulkDestroy'])->name('meters.bulk-destroy');
+    Route::resource('config-files', \App\Http\Controllers\ConfigurationFileController::class);
     Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::get('reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index');
     

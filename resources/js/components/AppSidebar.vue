@@ -13,13 +13,15 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import * as sites from '@/actions/App/Http/Controllers/SiteController';
+import * as buildings from '@/actions/App/Http/Controllers/BuildingController';
 import * as gateways from '@/actions/App/Http/Controllers/GatewayController';
 import * as meters from '@/actions/App/Http/Controllers/MeterController';
+import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileController';
 import * as reports from '@/actions/App/Http/Controllers/ReportsController';
 import * as users from '@/actions/App/Http/Controllers/UserController';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -34,6 +36,11 @@ const mainNavItems: NavItem[] = [
         icon: MapPin,
     },
     {
+        title: 'Buildings',
+        href: buildings.index().url,
+        icon: Building2,
+    },
+    {
         title: 'Gateways',
         href: gateways.index().url,
         icon: Radio,
@@ -42,6 +49,11 @@ const mainNavItems: NavItem[] = [
         title: 'Meters',
         href: meters.index().url,
         icon: Zap,
+    },
+    {
+        title: 'Config Files',
+        href: configFiles.index().url,
+        icon: FileCode,
     },
     {
         title: 'Reports',
