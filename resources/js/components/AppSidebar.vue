@@ -16,9 +16,10 @@ import * as sites from '@/actions/App/Http/Controllers/SiteController';
 import * as gateways from '@/actions/App/Http/Controllers/GatewayController';
 import * as meters from '@/actions/App/Http/Controllers/MeterController';
 import * as reports from '@/actions/App/Http/Controllers/ReportsController';
+import * as users from '@/actions/App/Http/Controllers/UserController';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3 } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -46,6 +47,11 @@ const mainNavItems: NavItem[] = [
         title: 'Reports',
         href: reports.index().url,
         icon: BarChart3,
+    },
+    {
+        title: 'Users',
+        href: users.index().url,
+        icon: Users,
     },
 ];
 
