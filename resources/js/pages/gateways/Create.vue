@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import FormField from '@/components/FormField.vue'
 import {
   Select,
   SelectContent,
@@ -21,6 +22,8 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { ArrowLeft, Radio } from 'lucide-vue-next'
+import { useValidation, validationRules } from '@/composables/useValidation'
+import { ref, watch, onMounted } from 'vue'
 
 interface Site {
   id: number
@@ -61,7 +64,99 @@ const form = useForm({
   software_version: '',
 })
 
+// Setup validation
+const validation = useValidation()
+
+onMounted(() => {
+  // Register fields with validation rules
+  validation.registerField('site_id', [validationRules.required('Please select a site')])
+  validation.registerField('serial_number', [
+    validationRules.required('Serial number is required'),
+    validationRules.minLength(3, 'Serial number must be at least 3 characters'),
+  ])
+  validation.registerField('mac_address', [
+    validationRules.macAddress('Invalid MAC address format (e.g., 00:11:22:33:44:55)'),
+  ])
+  validation.registerField('ip_address', [
+    validationRules.ipAddress('Invalid IP address format'),
+  ])
+  validation.registerField('ip_netmask', [
+    validationRules.ipAddress('Invalid netmask format'),
+  ])
+  validation.registerField('ip_gateway', [
+    validationRules.ipAddress('Invalid gateway IP format'),
+  ])
+  validation.registerField('server_ip', [
+    validationRules.ipAddress('Invalid server IP format'),
+  ])
+})
+
+// Watch form fields and validate on change
+watch(() => form.site_id, (value) => {
+  validation.markDirty('site_id')
+  validation.validateField('site_id', value)
+})
+
+watch(() => form.serial_number, (value) => {
+  validation.markDirty('serial_number')
+  validation.validateField('serial_number', value)
+})
+
+watch(() => form.mac_address, (value) => {
+  if (value) {
+    validation.markDirty('mac_address')
+    validation.validateField('mac_address', value)
+  }
+})
+
+watch(() => form.ip_address, (value) => {
+  if (value) {
+    validation.markDirty('ip_address')
+    validation.validateField('ip_address', value)
+  }
+})
+
+watch(() => form.ip_netmask, (value) => {
+  if (value) {
+    validation.markDirty('ip_netmask')
+    validation.validateField('ip_netmask', value)
+  }
+})
+
+watch(() => form.ip_gateway, (value) => {
+  if (value) {
+    validation.markDirty('ip_gateway')
+    validation.validateField('ip_gateway', value)
+  }
+})
+
+watch(() => form.server_ip, (value) => {
+  if (value) {
+    validation.markDirty('server_ip')
+    validation.validateField('server_ip', value)
+  }
+})
+
 const submit = () => {
+  // Validate all fields before submission
+  const isValid = validation.validateAll({
+    site_id: form.site_id,
+    serial_number: form.serial_number,
+    mac_address: form.mac_address,
+    ip_address: form.ip_address,
+    ip_netmask: form.ip_netmask,
+    ip_gateway: form.ip_gateway,
+    server_ip: form.server_ip,
+  })
+
+  if (!isValid) {
+    // Mark all fields as touched to show errors
+    Object.keys(validation.fields.value).forEach(field => {
+      validation.touchField(field)
+    })
+    return
+  }
+
   form.post(gateways.store().url)
 }
 </script>
@@ -95,9 +190,13 @@ const submit = () => {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="site_id">Site *</Label>
-                <Select v-model="form.site_id" required>
+              <FormField 
+                label="Site" 
+                name="site_id" 
+                :error="validation.shouldShowError('site_id') ? validation.getError('site_id') : (form.errors.site_id || undefined)"
+                required
+              >
+                <Select v-model="form.site_id" @update:model-value="() => validation.touchField('site_id')">
                   <SelectTrigger>
                     <SelectValue placeholder="Select site" />
                   </SelectTrigger>
@@ -107,11 +206,13 @@ const submit = () => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                <p v-if="form.errors.site_id" class="text-sm text-destructive">{{ form.errors.site_id }}</p>
-              </div>
+              </FormField>
 
-              <div class="space-y-2">
-                <Label for="location_id">Location</Label>
+              <FormField 
+                label="Location" 
+                name="location_id"
+                hint="Optional - specify gateway location"
+              >
                 <Select v-model="form.location_id">
                   <SelectTrigger>
                     <SelectValue placeholder="Select location (optional)" />
@@ -123,19 +224,23 @@ const submit = () => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </FormField>
             </div>
 
-            <div class="space-y-2">
-              <Label for="serial_number">Serial Number *</Label>
+            <FormField 
+              label="Serial Number" 
+              name="serial_number" 
+              :error="validation.shouldShowError('serial_number') ? validation.getError('serial_number') : (form.errors.serial_number || undefined)"
+              hint="Unique identifier for the gateway"
+              required
+            >
               <Input
                 id="serial_number"
                 v-model="form.serial_number"
                 placeholder="e.g., GW-12345"
-                required
+                @blur="() => validation.touchField('serial_number')"
               />
-              <p v-if="form.errors.serial_number" class="text-sm text-destructive">{{ form.errors.serial_number }}</p>
-            </div>
+            </FormField>
           </CardContent>
         </Card>
 
@@ -146,59 +251,87 @@ const submit = () => {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="mac_address">MAC Address</Label>
+              <FormField 
+                label="MAC Address" 
+                name="mac_address"
+                :error="validation.shouldShowError('mac_address') ? validation.getError('mac_address') : undefined"
+                hint="Format: 00:11:22:33:44:55"
+              >
                 <Input
                   id="mac_address"
                   v-model="form.mac_address"
                   placeholder="00:11:22:33:44:55"
+                  @blur="() => validation.touchField('mac_address')"
                 />
-              </div>
+              </FormField>
 
-              <div class="space-y-2">
-                <Label for="ip_address">IP Address</Label>
+              <FormField 
+                label="IP Address" 
+                name="ip_address"
+                :error="validation.shouldShowError('ip_address') ? validation.getError('ip_address') : undefined"
+                hint="Gateway's IP address"
+              >
                 <Input
                   id="ip_address"
                   v-model="form.ip_address"
                   placeholder="192.168.1.100"
+                  @blur="() => validation.touchField('ip_address')"
                 />
-              </div>
+              </FormField>
 
-              <div class="space-y-2">
-                <Label for="ip_netmask">Netmask</Label>
+              <FormField 
+                label="Netmask" 
+                name="ip_netmask"
+                :error="validation.shouldShowError('ip_netmask') ? validation.getError('ip_netmask') : undefined"
+                hint="Network subnet mask"
+              >
                 <Input
                   id="ip_netmask"
                   v-model="form.ip_netmask"
                   placeholder="255.255.255.0"
+                  @blur="() => validation.touchField('ip_netmask')"
                 />
-              </div>
+              </FormField>
 
-              <div class="space-y-2">
-                <Label for="ip_gateway">Gateway IP</Label>
+              <FormField 
+                label="Gateway IP" 
+                name="ip_gateway"
+                :error="validation.shouldShowError('ip_gateway') ? validation.getError('ip_gateway') : undefined"
+                hint="Network gateway address"
+              >
                 <Input
                   id="ip_gateway"
                   v-model="form.ip_gateway"
                   placeholder="192.168.1.1"
+                  @blur="() => validation.touchField('ip_gateway')"
                 />
-              </div>
+              </FormField>
 
-              <div class="space-y-2">
-                <Label for="server_ip">Server IP</Label>
+              <FormField 
+                label="Server IP" 
+                name="server_ip"
+                :error="validation.shouldShowError('server_ip') ? validation.getError('server_ip') : undefined"
+                hint="CAMR server IP address"
+              >
                 <Input
                   id="server_ip"
                   v-model="form.server_ip"
                   placeholder="Server IP address"
+                  @blur="() => validation.touchField('server_ip')"
                 />
-              </div>
+              </FormField>
 
-              <div class="space-y-2">
-                <Label for="connection_type">Connection Type</Label>
+              <FormField 
+                label="Connection Type" 
+                name="connection_type"
+                hint="e.g., Ethernet, WiFi, Cellular"
+              >
                 <Input
                   id="connection_type"
                   v-model="form.connection_type"
                   placeholder="e.g., Ethernet, WiFi"
                 />
-              </div>
+              </FormField>
             </div>
           </CardContent>
         </Card>
