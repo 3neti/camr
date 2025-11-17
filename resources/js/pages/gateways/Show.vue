@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import * as gateways from '@/actions/App/Http/Controllers/GatewayController'
+import * as meters from '@/actions/App/Http/Controllers/MeterController'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -295,7 +296,12 @@ const inactiveMeters = props.gateway.meters.filter((m) => !m.last_log_update || 
                       No meters connected to this gateway
                     </TableCell>
                   </TableRow>
-                  <TableRow v-for="meter in gateway.meters" :key="meter.id">
+                  <TableRow 
+                    v-for="meter in gateway.meters" 
+                    :key="meter.id"
+                    class="cursor-pointer hover:bg-muted/50 transition-colors"
+                    @click="router.visit(meters.show({ meter: meter.id }).url)"
+                  >
                     <TableCell class="font-medium">{{ meter.name }}</TableCell>
                     <TableCell>{{ meter.type }}</TableCell>
                     <TableCell>{{ meter.brand }}</TableCell>

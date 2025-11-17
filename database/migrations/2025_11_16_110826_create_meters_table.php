@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('site_id')->constrained()->cascadeOnDelete();
             $table->foreignId('gateway_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('location_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('building_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('configuration_file_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('configuration_file_id')->nullable()->constrained()->nullOnDelete();
             
-            $table->string('site_code');
+            $table->string('site_code')->nullable();
             $table->string('name');
             $table->boolean('is_addressable')->default(true);
             $table->boolean('has_load_profile')->default(false);
-            $table->string('default_name');
+            $table->string('default_name')->nullable();
             $table->string('type')->nullable();
             $table->string('brand')->nullable();
             $table->string('role')->default('Client Meter'); // Main, Sub, Check, Client

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             SiteSeeder::class,
             LocationSeeder::class,
             GatewaySeeder::class,
+            MeterSeeder::class,
         ]);
     }
 }

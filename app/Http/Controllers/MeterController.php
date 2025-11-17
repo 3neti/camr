@@ -62,8 +62,11 @@ class MeterController extends Controller
 
     public function store(StoreMeterRequest $request)
     {
+        $gateway = Gateway::findOrFail($request->gateway_id);
+        
         $meter = Meter::create([
             ...$request->validated(),
+            'site_id' => $gateway->site_id,
             'created_by' => auth()->id(),
         ]);
 
