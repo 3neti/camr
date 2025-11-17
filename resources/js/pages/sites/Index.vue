@@ -29,6 +29,8 @@ import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface Site {
   id: number
@@ -111,6 +113,20 @@ function handleSort(column: string) {
   sorting.sort(column, { search: search.value || undefined })
 }
 
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'sites-column-preferences',
+  defaultColumns: [
+    { key: 'checkbox', label: 'Select', locked: true },
+    { key: 'code', label: 'Code', locked: true },
+    { key: 'company', label: 'Company' },
+    { key: 'division', label: 'Division' },
+    { key: 'status', label: 'Status' },
+    { key: 'last_update', label: 'Last Update' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
+
 // Export
 const { exportToCSV } = useExport()
 
@@ -187,11 +203,25 @@ function exportSites() {
                 Export CSV
               </Button>
             </div>
-            <FilterPresets
-              storage-key="sites-filter-presets"
-              :route-url="sites.index().url"
-              :current-filters="props.filters"
-            />
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="sites-filter-presets"
+                :route-url="sites.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="sites-column-preferences"
+                :default-columns="[
+                  { key: 'checkbox', label: 'Select', locked: true },
+                  { key: 'code', label: 'Code', locked: true },
+                  { key: 'company', label: 'Company' },
+                  { key: 'division', label: 'Division' },
+                  { key: 'status', label: 'Status' },
+                  { key: 'last_update', label: 'Last Update' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -206,10 +236,10 @@ function exportSites() {
                   />
                 </TableHead>
                 <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Division</TableHead>
-                <SortableTableHead column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
-                <TableHead>Last Update</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('company')">Company</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('division')">Division</TableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('last_update')">Last Update</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -227,14 +257,14 @@ function exportSites() {
                   />
                 </TableCell>
                 <TableCell class="font-medium">{{ site.code }}</TableCell>
-                <TableCell>{{ site.company.name }}</TableCell>
-                <TableCell>{{ site.division.name }}</TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('company')">{{ site.company.name }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('division')">{{ site.division.name }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('status')">
                   <Badge :class="getStatusColor(site.status)" variant="outline">
                     {{ site.status }}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('last_update')">
                   {{ site.last_log_update ? new Date(site.last_log_update).toLocaleString() : 'Never' }}
                 </TableCell>
                 <TableCell class="text-right">
