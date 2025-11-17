@@ -19,22 +19,32 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Get statistics
+// Get statistics
         $stats = [
             'sites' => [
                 'total' => Site::count(),
-                'online' => Site::where('status', 'Online')->count(),
-                'offline' => Site::where('status', 'Offline')->count(),
+                'online' => Site::whereNotNull('last_log_update')
+                    ->where('last_log_update', '>=', Carbon::now()->subMinutes(15))
+                    ->count(),
+                'offline' => Site::where(function($query) {
+                    $query->whereNull('last_log_update')
+                          ->orWhere('last_log_update', '<', Carbon::now()->subMinutes(15));
+                })->count(),
             ],
             'gateways' => [
                 'total' => Gateway::count(),
-                'online' => Gateway::where('status', 'Online')->count(),
-                'offline' => Gateway::where('status', 'Offline')->count(),
+                'online' => Gateway::whereNotNull('last_log_update')
+                    ->where('last_log_update', '>=', Carbon::now()->subMinutes(15))
+                    ->count(),
+                'offline' => Gateway::where(function($query) {
+                    $query->whereNull('last_log_update')
+                          ->orWhere('last_log_update', '<', Carbon::now()->subMinutes(15));
+                })->count(),
             ],
             'meters' => [
                 'total' => Meter::count(),
-                'active' => Meter::where('status', 'active')->count(),
-                'inactive' => Meter::where('status', 'inactive')->count(),
+                'active' => Meter::where('status', 'Active')->count(),
+                'inactive' => Meter::where('status', '!=', 'Active')->count(),
             ],
             'buildings' => Building::count(),
             'locations' => Location::count(),
