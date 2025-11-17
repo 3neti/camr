@@ -119,4 +119,17 @@ class MeterController extends Controller
         return redirect()->route('meters.index')
             ->with('success', 'Meter deleted successfully.');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:meters,id',
+        ]);
+
+        $count = Meter::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('meters.index')
+            ->with('success', "{$count} meters deleted successfully.");
+    }
 }

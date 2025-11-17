@@ -3,6 +3,8 @@ import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
+import { Toaster } from '@/components/ui/sonner';
+import { useFlash } from '@/composables/useFlash';
 import type { BreadcrumbItemType } from '@/types';
 
 interface Props {
@@ -12,6 +14,9 @@ interface Props {
 withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
+
+// Initialize flash message handling
+useFlash();
 </script>
 
 <template>
@@ -21,5 +26,6 @@ withDefaults(defineProps<Props>(), {
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
         </AppContent>
+        <Toaster position="top-right" />
     </AppShell>
 </template>

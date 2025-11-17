@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, Search, Trash2, Eye, Pencil, Zap } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
+import { useBulkActions } from '@/composables/useBulkActions'
 
 interface Meter {
   id: number
@@ -73,6 +75,19 @@ const deleteMeter = (meter: Meter) => {
     router.delete(meters.destroy({ meter: meter.id }).url)
   }
 }
+
+// Bulk actions
+const bulk = useBulkActions(props.meters.data)
+
+function bulkDeleteMeters() {
+  if (bulk.selectedIds.value.length === 0) return
+  
+  if (confirm(`Are you sure you want to delete ${bulk.selectedIds.value.length} meters?`)) {
+    router.post('/meters/bulk-delete', { ids: bulk.selectedIds.value }, {
+      onSuccess: () => bulk.clearSelection()
+    })
+  }
+}
 </script>
 
 <template>
@@ -98,7 +113,12 @@ const deleteMeter = (meter: Meter) => {
           <div class="flex items-center justify-between">
             <div>
               <CardTitle>All Meters</CardTitle>
-              <CardDescription>{{ props.meters.total }} total meters</CardDescription>
+              <CardDescription>
+                {{ props.meters.total }} total meters
+                <span v-if="bulk.hasSelection.value" class="ml-2">
+                  · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
+                </span>
+              </CardDescription>
             </div>
             <div class="flex gap-3">
               <Select v-model="siteId">
@@ -132,11 +152,27 @@ const deleteMeter = (meter: Meter) => {
               </div>
             </div>
           </div>
+          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
+            <Button variant="destructive" size="sm" @click="bulkDeleteMeters">
+              <Trash2 class="h-4 w-4 mr-2" />
+              Delete Selected ({{ bulk.selectedIds.value.length }})
+            </Button>
+            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+              Clear Selection
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead class="w-12">
+                  <Checkbox 
+                    :checked="bulk.allSelected.value" 
+                    :indeterminate="bulk.someSelected.value"
+                    @update:checked="bulk.allSelected.value = $event" 
+                  />
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Brand</TableHead>
@@ -149,9 +185,15 @@ const deleteMeter = (meter: Meter) => {
             </TableHeader>
             <TableBody>
               <TableRow v-if="props.meters.data.length === 0">
-                <TableCell colspan="8" class="text-center text-muted-foreground">No meters found</TableCell>
+                <TableCell colspan="9" class="text-center text-muted-foreground">No meters found</TableCell>
               </TableRow>
               <TableRow v-for="meter in props.meters.data" :key="meter.id">
+                <TableCell>
+                  <Checkbox 
+                    :checked="bulk.isSelected(meter.id)" 
+                    @update:checked="bulk.toggleSelection(meter.id)" 
+                  />
+                </TableCell>
                 <TableCell class="font-medium">{{ meter.name }}</TableCell>
                 <TableCell>{{ meter.type }}</TableCell>
                 <TableCell>{{ meter.brand }}</TableCell>
