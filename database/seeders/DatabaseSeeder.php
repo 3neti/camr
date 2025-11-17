@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
             GatewaySeeder::class,
             MeterSeeder::class,
+            MeterDataSeeder::class,
+            LoadProfileSeeder::class,
         ]);
     }
 }

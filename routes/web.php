@@ -19,6 +19,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('sites', \App\Http\Controllers\SiteController::class);
     Route::resource('gateways', \App\Http\Controllers\GatewayController::class);
     Route::resource('meters', \App\Http\Controllers\MeterController::class);
+    Route::get('reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index');
+    
+    // API routes for chart data
+    Route::prefix('api/meters/{meter}')->group(function () {
+        Route::get('/power-data', [\App\Http\Controllers\Api\ReportsController::class, 'meterPowerData']);
+        Route::get('/load-profile', [\App\Http\Controllers\Api\ReportsController::class, 'meterLoadProfile']);
+        Route::get('/energy-summary', [\App\Http\Controllers\Api\ReportsController::class, 'meterEnergySummary']);
+    });
 });
 
 require __DIR__.'/settings.php';
