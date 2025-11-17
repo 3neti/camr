@@ -19,6 +19,7 @@ import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
+import { getTableConfig } from '@/config/tableColumnsLoader'
 
 interface Meter {
   id: number
@@ -113,19 +114,10 @@ function handleSort(column: string) {
 }
 
 // Column preferences
+const tableConfig = getTableConfig('meters')!
 const columnPrefs = useColumnPreferences({
-  storageKey: 'meters-column-preferences',
-  defaultColumns: [
-    { key: 'checkbox', label: 'Select', locked: true },
-    { key: 'name', label: 'Name', locked: true },
-    { key: 'type', label: 'Type' },
-    { key: 'brand', label: 'Brand' },
-    { key: 'customer', label: 'Customer' },
-    { key: 'site', label: 'Site' },
-    { key: 'gateway', label: 'Gateway' },
-    { key: 'status', label: 'Status' },
-    { key: 'actions', label: 'Actions', locked: true },
-  ],
+  storageKey: tableConfig.storageKey,
+  defaultColumns: tableConfig.columns,
 })
 
 // Export

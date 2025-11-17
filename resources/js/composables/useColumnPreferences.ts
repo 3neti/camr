@@ -1,10 +1,16 @@
 import { ref, computed, watch } from 'vue';
+import type { ColumnAlignment, ColumnFormatter } from '@/config/tableColumns.example';
 
 export interface TableColumn {
     key: string;
     label: string;
     visible: boolean;
-    locked?: boolean; // Locked columns cannot be hidden
+    locked?: boolean; // Locked columns cannot be hidden or reordered
+    sortable?: boolean; // Column supports sorting
+    order: number; // Display order (lower numbers appear first)
+    width?: string; // CSS width value
+    alignment?: ColumnAlignment; // Text alignment
+    formatter?: ColumnFormatter; // Value formatter
 }
 
 interface UseColumnPreferencesOptions {
@@ -45,7 +51,7 @@ export function useColumnPreferences(options: UseColumnPreferencesOptions) {
     const columns = ref<TableColumn[]>(
         defaultColumns.map((col) => ({
             ...col,
-            visible: storedPreferences[col.key] ?? true, // Default to visible if not stored
+            visible: storedPreferences[col.key] ?? col.visible ?? true, // Use config default or true
         }))
     );
 
@@ -62,10 +68,13 @@ export function useColumnPreferences(options: UseColumnPreferencesOptions) {
         { deep: true }
     );
 
-    const visibleColumns = computed(() => columns.value.filter((col) => col.visible));
-    const hiddenColumns = computed(() => columns.value.filter((col) => !col.visible));
+    // Sort columns by order before filtering
+    const sortedColumns = computed(() => [...columns.value].sort((a, b) => a.order - b.order));
+    const visibleColumns = computed(() => sortedColumns.value.filter((col) => col.visible));
+    const hiddenColumns = computed(() => sortedColumns.value.filter((col) => !col.visible));
     const lockedColumns = computed(() => columns.value.filter((col) => col.locked));
     const toggleableColumns = computed(() => columns.value.filter((col) => !col.locked));
+    const sortableColumns = computed(() => columns.value.filter((col) => col.sortable));
 
     const hasHiddenColumns = computed(() => hiddenColumns.value.length > 0);
     const allColumnsVisible = computed(() => visibleColumns.value.length === columns.value.length);
@@ -182,12 +191,42 @@ export function useColumnPreferences(options: UseColumnPreferencesOptions) {
         }
     };
 
+    /**
+     * Get column by key
+     */
+    const getColumn = (key: string): TableColumn | undefined => {
+        return columns.value.find((col) => col.key === key);
+    };
+
+    /**
+     * Get column width
+     */
+    const getColumnWidth = (key: string): string | undefined => {
+        return getColumn(key)?.width;
+    };
+
+    /**
+     * Get column alignment
+     */
+    const getColumnAlignment = (key: string): ColumnAlignment | undefined => {
+        return getColumn(key)?.alignment;
+    };
+
+    /**
+     * Get column formatter
+     */
+    const getColumnFormatter = (key: string): ColumnFormatter | undefined => {
+        return getColumn(key)?.formatter;
+    };
+
     return {
         columns,
+        sortedColumns,
         visibleColumns,
         hiddenColumns,
         lockedColumns,
         toggleableColumns,
+        sortableColumns,
         hasHiddenColumns,
         allColumnsVisible,
         isColumnVisible,
@@ -201,5 +240,9 @@ export function useColumnPreferences(options: UseColumnPreferencesOptions) {
         getPreferences,
         exportPreferences,
         importPreferences,
+        getColumn,
+        getColumnWidth,
+        getColumnAlignment,
+        getColumnFormatter,
     };
 }

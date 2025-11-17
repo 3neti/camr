@@ -16,6 +16,7 @@ import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
+import { getTableConfig } from '@/config/tableColumnsLoader'
 
 interface Props {
   buildings: {
@@ -59,15 +60,10 @@ function handleSort(column: string) {
 }
 
 // Column preferences
+const tableConfig = getTableConfig('buildings')!
 const columnPrefs = useColumnPreferences({
-  storageKey: 'buildings-column-preferences',
-  defaultColumns: [
-    { key: 'code', label: 'Code', locked: true },
-    { key: 'description', label: 'Description' },
-    { key: 'site', label: 'Site' },
-    { key: 'created', label: 'Created' },
-    { key: 'actions', label: 'Actions', locked: true },
-  ],
+  storageKey: tableConfig.storageKey,
+  defaultColumns: tableConfig.columns,
 })
 
 // Export
@@ -137,14 +133,8 @@ function exportBuildings() {
                 :current-filters="props.filters"
               />
               <ColumnPreferences
-                storage-key="buildings-column-preferences"
-                :default-columns="[
-                  { key: 'code', label: 'Code', locked: true },
-                  { key: 'description', label: 'Description' },
-                  { key: 'site', label: 'Site' },
-                  { key: 'created', label: 'Created' },
-                  { key: 'actions', label: 'Actions', locked: true },
-                ]"
+                :storage-key="tableConfig.storageKey"
+                :default-columns="tableConfig.columns"
               />
             </div>
           </div>

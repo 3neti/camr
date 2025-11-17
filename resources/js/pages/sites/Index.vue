@@ -31,6 +31,7 @@ import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
+import { getTableConfig } from '@/config/tableColumnsLoader'
 
 interface Site {
   id: number
@@ -113,17 +114,10 @@ function handleSort(column: string) {
 }
 
 // Column preferences
+const tableConfig = getTableConfig('sites')!
 const columnPrefs = useColumnPreferences({
-  storageKey: 'sites-column-preferences',
-  defaultColumns: [
-    { key: 'checkbox', label: 'Select', locked: true },
-    { key: 'code', label: 'Code', locked: true },
-    { key: 'company', label: 'Company' },
-    { key: 'division', label: 'Division' },
-    { key: 'status', label: 'Status' },
-    { key: 'last_update', label: 'Last Update' },
-    { key: 'actions', label: 'Actions', locked: true },
-  ],
+  storageKey: tableConfig.storageKey,
+  defaultColumns: tableConfig.columns,
 })
 
 // Export
@@ -209,16 +203,8 @@ function exportSites() {
                 :current-filters="props.filters"
               />
               <ColumnPreferences
-                storage-key="sites-column-preferences"
-                :default-columns="[
-                  { key: 'checkbox', label: 'Select', locked: true },
-                  { key: 'code', label: 'Code', locked: true },
-                  { key: 'company', label: 'Company' },
-                  { key: 'division', label: 'Division' },
-                  { key: 'status', label: 'Status' },
-                  { key: 'last_update', label: 'Last Update' },
-                  { key: 'actions', label: 'Actions', locked: true },
-                ]"
+                :storage-key="tableConfig.storageKey"
+                :default-columns="tableConfig.columns"
               />
             </div>
           </div>

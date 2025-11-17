@@ -38,6 +38,7 @@ import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
+import { getTableConfig } from '@/config/tableColumnsLoader'
 
 interface Gateway {
   id: number
@@ -141,18 +142,10 @@ function handleSort(column: string) {
 }
 
 // Column preferences
+const tableConfig = getTableConfig('gateways')!
 const columnPrefs = useColumnPreferences({
-  storageKey: 'gateways-column-preferences',
-  defaultColumns: [
-    { key: 'checkbox', label: 'Select', locked: true },
-    { key: 'serial_number', label: 'Serial Number', locked: true },
-    { key: 'site', label: 'Site' },
-    { key: 'mac_address', label: 'MAC Address' },
-    { key: 'ip_address', label: 'IP Address' },
-    { key: 'status', label: 'Status' },
-    { key: 'last_update', label: 'Last Update' },
-    { key: 'actions', label: 'Actions', locked: true },
-  ],
+  storageKey: tableConfig.storageKey,
+  defaultColumns: tableConfig.columns,
 })
 
 // Export

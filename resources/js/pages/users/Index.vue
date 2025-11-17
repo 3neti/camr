@@ -18,6 +18,7 @@ import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
+import { getTableConfig } from '@/config/tableColumnsLoader'
 
 interface User {
   id: number
@@ -106,18 +107,10 @@ function handleSort(column: string) {
 }
 
 // Column preferences
+const tableConfig = getTableConfig('users')!
 const columnPrefs = useColumnPreferences({
-  storageKey: 'users-column-preferences',
-  defaultColumns: [
-    { key: 'name', label: 'Name', locked: true },
-    { key: 'email', label: 'Email', locked: true },
-    { key: 'job_title', label: 'Job Title' },
-    { key: 'role', label: 'Role' },
-    { key: 'access_level', label: 'Access Level' },
-    { key: 'sites', label: 'Sites' },
-    { key: 'status', label: 'Status' },
-    { key: 'actions', label: 'Actions', locked: true },
-  ],
+  storageKey: tableConfig.storageKey,
+  defaultColumns: tableConfig.columns,
 })
 
 // Export

@@ -15,6 +15,7 @@ import { useExport } from '@/composables/useExport'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
+import { getTableConfig } from '@/config/tableColumnsLoader'
 
 interface Props {
   configFiles: {
@@ -51,14 +52,10 @@ function handleSort(column: string) {
 }
 
 // Column preferences
+const tableConfig = getTableConfig('configFiles')!
 const columnPrefs = useColumnPreferences({
-  storageKey: 'config-files-column-preferences',
-  defaultColumns: [
-    { key: 'meter_model', label: 'Meter Model', locked: true },
-    { key: 'meters_using', label: 'Meters Using' },
-    { key: 'created', label: 'Created' },
-    { key: 'actions', label: 'Actions', locked: true },
-  ],
+  storageKey: tableConfig.storageKey,
+  defaultColumns: tableConfig.columns,
 })
 
 // Export
@@ -118,13 +115,8 @@ function exportConfigFiles() {
                 :current-filters="props.filters"
               />
               <ColumnPreferences
-                storage-key="config-files-column-preferences"
-                :default-columns="[
-                  { key: 'meter_model', label: 'Meter Model', locked: true },
-                  { key: 'meters_using', label: 'Meters Using' },
-                  { key: 'created', label: 'Created' },
-                  { key: 'actions', label: 'Actions', locked: true },
-                ]"
+                :storage-key="tableConfig.storageKey"
+                :default-columns="tableConfig.columns"
               />
             </div>
           </div>
