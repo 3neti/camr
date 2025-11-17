@@ -97,14 +97,14 @@ class Site extends Model
 
     /**
      * Get the site's status based on its gateways.
-     * A site is considered 'online' if at least one gateway has reported within the last 15 minutes.
+     * A site is considered 'online' if at least one gateway is online (reported within the last 24 hours).
      */
     public function getStatusAttribute(): bool
     {
-        // Check if any gateway has recent activity (within last 15 minutes)
+        // Check if any gateway has recent activity (within last 24 hours, matching Gateway status logic)
         return $this->gateways()
             ->whereNotNull('last_log_update')
-            ->where('last_log_update', '>=', now()->subMinutes(15))
+            ->where('last_log_update', '>=', now()->subDay())
             ->exists();
     }
     
