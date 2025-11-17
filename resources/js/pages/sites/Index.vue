@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import SortableTableHead from '@/components/SortableTableHead.vue'
-import { Plus, Search, Trash2, Eye, Pencil, Download } from 'lucide-vue-next'
+import { Plus, Search, Trash2, Eye, Pencil, Download, Building2, MapPin, Radio, Zap } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
@@ -113,6 +113,48 @@ function handleSort(column: string) {
   sorting.sort(column, { search: search.value || undefined })
 }
 
+// Handle row click to toggle selection
+function handleRowClick(event: MouseEvent, siteId: number) {
+  // Don't toggle if clicking on interactive elements (handled by @click.stop on those cells)
+  bulk.toggleSelection(siteId)
+}
+
+// Save selected site IDs to sessionStorage for context filtering
+function saveSelectedContext() {
+  if (bulk.selectedIds.value.length > 0) {
+    sessionStorage.setItem('selectedSiteIds', JSON.stringify(bulk.selectedIds.value))
+  }
+}
+
+// Navigate to related pages with selected sites as filter
+function goToBuildings() {
+  saveSelectedContext()
+  router.visit('/buildings', {
+    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
+  })
+}
+
+function goToLocations() {
+  saveSelectedContext()
+  router.visit('/locations', {
+    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
+  })
+}
+
+function goToGateways() {
+  saveSelectedContext()
+  router.visit('/gateways', {
+    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
+  })
+}
+
+function goToMeters() {
+  saveSelectedContext()
+  router.visit('/meters', {
+    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
+  })
+}
+
 // Column preferences
 const tableConfig = getTableConfig('sites')!
 const columnPrefs = useColumnPreferences({
@@ -183,13 +225,29 @@ function exportSites() {
           <div class="mt-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <template v-if="bulk.hasSelection.value">
-                <Button variant="destructive" size="sm" @click="bulkDeleteSites">
-                  <Trash2 class="h-4 w-4 mr-2" />
-                  Delete Selected ({{ bulk.selectedIds.value.length }})
-                </Button>
-                <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-                  Clear Selection
-                </Button>
+                <div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md">
+                  <span class="text-sm font-medium">Selected ({{ bulk.selectedIds.value.length }})</span>
+                  <div class="h-4 w-px bg-border" />
+                  <Button variant="ghost" size="sm" @click="goToBuildings" title="View Buildings">
+                    <Building2 class="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" @click="goToLocations" title="View Locations">
+                    <MapPin class="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" @click="goToGateways" title="View Gateways">
+                    <Radio class="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" @click="goToMeters" title="View Meters">
+                    <Zap class="h-4 w-4" />
+                  </Button>
+                  <div class="h-4 w-px bg-border" />
+                  <Button variant="ghost" size="sm" @click="bulkDeleteSites" class="text-destructive hover:text-destructive" title="Delete Selected">
+                    <Trash2 class="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" @click="bulk.clearSelection()" title="Clear Selection">
+                    <span class="text-xs">Clear</span>
+                  </Button>
+                </div>
               </template>
               <Button variant="outline" size="sm" @click="exportSites">
                 <Download class="h-4 w-4 mr-2" />
@@ -234,8 +292,17 @@ function exportSites() {
                   No sites found
                 </TableCell>
               </TableRow>
-              <TableRow v-for="site in props.sites.data" :key="site.id">
-                <TableCell>
+              <TableRow 
+                v-for="site in props.sites.data" 
+                :key="site.id"
+                :class="{
+                  'bg-muted/50 hover:bg-muted/70': bulk.isSelected(site.id),
+                  'hover:bg-muted/30': !bulk.isSelected(site.id),
+                  'cursor-pointer': true
+                }"
+                @click="handleRowClick($event, site.id)"
+              >
+                <TableCell @click.stop>
                   <Checkbox 
                     :checked="bulk.isSelected(site.id)" 
                     @update:checked="bulk.toggleSelection(site.id)" 
@@ -252,7 +319,7 @@ function exportSites() {
                 <TableCell v-if="columnPrefs.isColumnVisible('last_update')">
                   {{ site.last_log_update ? new Date(site.last_log_update).toLocaleString() : 'Never' }}
                 </TableCell>
-                <TableCell class="text-right">
+                <TableCell class="text-right" @click.stop>
                   <div class="flex justify-end gap-2">
                     <Link :href="sites.show({ site: site.id }).url">
                       <Button variant="ghost" size="sm">
