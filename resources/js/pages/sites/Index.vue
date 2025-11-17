@@ -28,6 +28,7 @@ import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
 
 interface Site {
   id: number
@@ -170,20 +171,27 @@ function exportSites() {
               />
             </div>
           </div>
-          <div class="mt-4 flex items-center gap-2">
-            <template v-if="bulk.hasSelection.value">
-              <Button variant="destructive" size="sm" @click="bulkDeleteSites">
-                <Trash2 class="h-4 w-4 mr-2" />
-                Delete Selected ({{ bulk.selectedIds.value.length }})
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <template v-if="bulk.hasSelection.value">
+                <Button variant="destructive" size="sm" @click="bulkDeleteSites">
+                  <Trash2 class="h-4 w-4 mr-2" />
+                  Delete Selected ({{ bulk.selectedIds.value.length }})
+                </Button>
+                <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                  Clear Selection
+                </Button>
+              </template>
+              <Button variant="outline" size="sm" @click="exportSites">
+                <Download class="h-4 w-4 mr-2" />
+                Export CSV
               </Button>
-              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-                Clear Selection
-              </Button>
-            </template>
-            <Button variant="outline" size="sm" @click="exportSites">
-              <Download class="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            </div>
+            <FilterPresets
+              storage-key="sites-filter-presets"
+              :route-url="sites.index().url"
+              :current-filters="props.filters"
+            />
           </div>
         </CardHeader>
         <CardContent>
