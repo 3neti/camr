@@ -30,7 +30,8 @@ import { ArrowLeft, Pencil, Building, Radio, Zap, MapPin } from 'lucide-vue-next
 interface Site {
   id: number
   code: string
-  status: string
+  status: boolean
+  status_label: string
   last_log_update: string | null
   company: { name: string; code: string }
   division: { name: string; code: string }
@@ -63,12 +64,18 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const getSiteStatusColor = (status: boolean) => {
+  return status 
+    ? 'bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30' 
+    : 'bg-red-500/10 text-red-700 border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/30'
+}
+
 const getStatusColor = (status: string) => {
   return status === 'Online'
-    ? 'bg-green-500'
+    ? 'bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30'
     : status === 'Offline'
-    ? 'bg-red-500'
-    : 'bg-gray-500'
+    ? 'bg-red-500/10 text-red-700 border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/30'
+    : 'bg-gray-500/10 text-gray-700 border-gray-500/20 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/30'
 }
 
 const onlineGateways = props.site.gateways.filter((g) => g.status === 'Online').length
@@ -94,8 +101,8 @@ const offlineMeters = props.site.meters.filter((m) => !m.last_log_update || m.st
           <div>
             <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">
               {{ site.code }}
-              <Badge :class="getStatusColor(site.status)" variant="outline">
-                {{ site.status }}
+              <Badge :class="getSiteStatusColor(site.status)">
+                {{ site.status_label }}
               </Badge>
             </h1>
             <p class="text-muted-foreground">
@@ -199,8 +206,8 @@ const offlineMeters = props.site.meters.filter((m) => !m.last_log_update || m.st
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Status:</span>
-                  <Badge :class="getStatusColor(site.status)" variant="outline">
-                    {{ site.status }}
+                  <Badge :class="getSiteStatusColor(site.status)">
+                    {{ site.status_label }}
                   </Badge>
                 </div>
               </CardContent>
@@ -263,7 +270,7 @@ const offlineMeters = props.site.meters.filter((m) => !m.last_log_update || m.st
                       {{ gateway.location ? `${gateway.location.code} - ${gateway.location.description}` : 'N/A' }}
                     </TableCell>
                     <TableCell>
-                      <Badge :class="getStatusColor(gateway.status)" variant="outline">
+                      <Badge :class="getStatusColor(gateway.status)">
                         {{ gateway.status }}
                       </Badge>
                     </TableCell>
