@@ -13,6 +13,9 @@ import * as locations from '@/actions/App/Http/Controllers/LocationController'
 import { Plus, Search, MapPin, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface Props {
   locations: {
@@ -65,6 +68,19 @@ function handleSort(column: string) {
     building_id: buildingId.value !== 'all' ? buildingId.value : undefined,
   })
 }
+
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'locations-column-preferences',
+  defaultColumns: [
+    { key: 'code', label: 'Code', locked: true },
+    { key: 'description', label: 'Description' },
+    { key: 'site', label: 'Site' },
+    { key: 'building', label: 'Building' },
+    { key: 'created', label: 'Created' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
 
 // Export
 const { exportToCSV } = useExport()
@@ -129,11 +145,29 @@ function exportLocations() {
               </div>
             </div>
           </div>
-          <div class="mt-4">
+          <div class="mt-4 flex items-center justify-between">
             <Button variant="outline" size="sm" @click="exportLocations">
               <Download class="h-4 w-4 mr-2" />
               Export CSV
             </Button>
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="locations-filter-presets"
+                :route-url="locations.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="locations-column-preferences"
+                :default-columns="[
+                  { key: 'code', label: 'Code', locked: true },
+                  { key: 'description', label: 'Description' },
+                  { key: 'site', label: 'Site' },
+                  { key: 'building', label: 'Building' },
+                  { key: 'created', label: 'Created' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -141,10 +175,10 @@ function exportLocations() {
             <TableHeader>
               <TableRow>
                 <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
-                <SortableTableHead column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
-                <TableHead>Site</TableHead>
-                <TableHead>Building</TableHead>
-                <TableHead>Created</TableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('description')" column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('building')">Building</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('created')">Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -154,10 +188,10 @@ function exportLocations() {
               </TableRow>
               <TableRow v-for="location in props.locations.data" :key="location.id">
                 <TableCell class="font-medium">{{ location.code }}</TableCell>
-                <TableCell>{{ location.description }}</TableCell>
-                <TableCell><Badge variant="outline">{{ location.site.code }}</Badge></TableCell>
-                <TableCell>{{ location.building?.code || '—' }}</TableCell>
-                <TableCell>{{ new Date(location.created_at).toLocaleDateString() }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('description')">{{ location.description }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('site')"><Badge variant="outline">{{ location.site.code }}</Badge></TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('building')">{{ location.building?.code || '—' }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('created')">{{ new Date(location.created_at).toLocaleDateString() }}</TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" @click="router.visit(locations.show({ location: location.id }).url)">

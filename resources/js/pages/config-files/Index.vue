@@ -12,6 +12,9 @@ import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileCo
 import { Plus, Search, FileCode, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface Props {
   configFiles: {
@@ -46,6 +49,17 @@ const sorting = useSortable(configFiles.index().url, {
 function handleSort(column: string) {
   sorting.sort(column, { search: search.value || undefined })
 }
+
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'config-files-column-preferences',
+  defaultColumns: [
+    { key: 'meter_model', label: 'Meter Model', locked: true },
+    { key: 'meters_using', label: 'Meters Using' },
+    { key: 'created', label: 'Created' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
 
 // Export
 const { exportToCSV } = useExport()
@@ -92,11 +106,27 @@ function exportConfigFiles() {
               <Input v-model="search" placeholder="Search meter models..." class="pl-10" @keyup.enter="applyFilters" />
             </div>
           </div>
-          <div class="mt-4">
+          <div class="mt-4 flex items-center justify-between">
             <Button variant="outline" size="sm" @click="exportConfigFiles">
               <Download class="h-4 w-4 mr-2" />
               Export CSV
             </Button>
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="config-files-filter-presets"
+                :route-url="configFiles.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="config-files-column-preferences"
+                :default-columns="[
+                  { key: 'meter_model', label: 'Meter Model', locked: true },
+                  { key: 'meters_using', label: 'Meters Using' },
+                  { key: 'created', label: 'Created' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -104,8 +134,8 @@ function exportConfigFiles() {
             <TableHeader>
               <TableRow>
                 <SortableTableHead column="meter_model" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Meter Model</SortableTableHead>
-                <TableHead>Meters Using</TableHead>
-                <TableHead>Created</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('meters_using')">Meters Using</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('created')">Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -115,10 +145,10 @@ function exportConfigFiles() {
               </TableRow>
               <TableRow v-for="config in props.configFiles.data" :key="config.id">
                 <TableCell class="font-medium">{{ config.meter_model }}</TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('meters_using')">
                   <Badge variant="secondary">{{ config.meters_count }} meters</Badge>
                 </TableCell>
-                <TableCell>{{ new Date(config.created_at).toLocaleDateString() }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('created')">{{ new Date(config.created_at).toLocaleDateString() }}</TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" @click="router.visit(configFiles.show({ config_file: config.id }).url)">

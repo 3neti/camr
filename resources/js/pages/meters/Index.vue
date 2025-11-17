@@ -16,6 +16,9 @@ import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface Meter {
   id: number
@@ -109,6 +112,22 @@ function handleSort(column: string) {
   })
 }
 
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'meters-column-preferences',
+  defaultColumns: [
+    { key: 'checkbox', label: 'Select', locked: true },
+    { key: 'name', label: 'Name', locked: true },
+    { key: 'type', label: 'Type' },
+    { key: 'brand', label: 'Brand' },
+    { key: 'customer', label: 'Customer' },
+    { key: 'site', label: 'Site' },
+    { key: 'gateway', label: 'Gateway' },
+    { key: 'status', label: 'Status' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
+
 // Export
 const { exportToCSV } = useExport()
 
@@ -192,20 +211,43 @@ function exportMeters() {
               </div>
             </div>
           </div>
-          <div class="mt-4 flex items-center gap-2">
-            <template v-if="bulk.hasSelection.value">
-              <Button variant="destructive" size="sm" @click="bulkDeleteMeters">
-                <Trash2 class="h-4 w-4 mr-2" />
-                Delete Selected ({{ bulk.selectedIds.value.length }})
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <template v-if="bulk.hasSelection.value">
+                <Button variant="destructive" size="sm" @click="bulkDeleteMeters">
+                  <Trash2 class="h-4 w-4 mr-2" />
+                  Delete Selected ({{ bulk.selectedIds.value.length }})
+                </Button>
+                <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                  Clear Selection
+                </Button>
+              </template>
+              <Button variant="outline" size="sm" @click="exportMeters">
+                <Download class="h-4 w-4 mr-2" />
+                Export CSV
               </Button>
-              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-                Clear Selection
-              </Button>
-            </template>
-            <Button variant="outline" size="sm" @click="exportMeters">
-              <Download class="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            </div>
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="meters-filter-presets"
+                :route-url="meters.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="meters-column-preferences"
+                :default-columns="[
+                  { key: 'checkbox', label: 'Select', locked: true },
+                  { key: 'name', label: 'Name', locked: true },
+                  { key: 'type', label: 'Type' },
+                  { key: 'brand', label: 'Brand' },
+                  { key: 'customer', label: 'Customer' },
+                  { key: 'site', label: 'Site' },
+                  { key: 'gateway', label: 'Gateway' },
+                  { key: 'status', label: 'Status' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -220,12 +262,12 @@ function exportMeters() {
                   />
                 </TableHead>
                 <SortableTableHead column="name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Name</SortableTableHead>
-                <SortableTableHead column="type" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Type</SortableTableHead>
-                <SortableTableHead column="brand" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Brand</SortableTableHead>
-                <SortableTableHead column="customer_name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Customer</SortableTableHead>
-                <TableHead>Site</TableHead>
-                <TableHead>Gateway</TableHead>
-                <SortableTableHead column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('type')" column="type" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Type</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('brand')" column="brand" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Brand</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('customer')" column="customer_name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Customer</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('gateway')">Gateway</TableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -241,12 +283,12 @@ function exportMeters() {
                   />
                 </TableCell>
                 <TableCell class="font-medium">{{ meter.name }}</TableCell>
-                <TableCell>{{ meter.type }}</TableCell>
-                <TableCell>{{ meter.brand }}</TableCell>
-                <TableCell>{{ meter.customer_name }}</TableCell>
-                <TableCell>{{ meter.gateway.site.code }}</TableCell>
-                <TableCell>{{ meter.gateway.serial_number }}</TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('type')">{{ meter.type }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('brand')">{{ meter.brand }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('customer')">{{ meter.customer_name }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('site')">{{ meter.gateway.site.code }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('gateway')">{{ meter.gateway.serial_number }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('status')">
                   <Badge :class="getStatusColor(meter.status_label)" variant="outline">{{ meter.status_label }}</Badge>
                 </TableCell>
                 <TableCell class="text-right">

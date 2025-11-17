@@ -15,6 +15,9 @@ import { Plus, Users, Search, Eye, Pencil, Trash2, Download } from 'lucide-vue-n
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface User {
   id: number
@@ -101,6 +104,21 @@ function handleSort(column: string) {
     status: statusFilter.value !== 'all' ? statusFilter.value : undefined,
   })
 }
+
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'users-column-preferences',
+  defaultColumns: [
+    { key: 'name', label: 'Name', locked: true },
+    { key: 'email', label: 'Email', locked: true },
+    { key: 'job_title', label: 'Job Title' },
+    { key: 'role', label: 'Role' },
+    { key: 'access_level', label: 'Access Level' },
+    { key: 'sites', label: 'Sites' },
+    { key: 'status', label: 'Status' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
 
 // Export
 const { exportToCSV } = useExport()
@@ -213,20 +231,42 @@ function exportUsers() {
               · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
             </span>
           </CardDescription>
-          <div class="mt-4 flex items-center gap-2">
-            <template v-if="bulk.hasSelection.value">
-              <Button variant="destructive" size="sm" @click="bulkDeleteUsers">
-                <Trash2 class="h-4 w-4 mr-2" />
-                Delete Selected ({{ bulk.selectedIds.value.length }})
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <template v-if="bulk.hasSelection.value">
+                <Button variant="destructive" size="sm" @click="bulkDeleteUsers">
+                  <Trash2 class="h-4 w-4 mr-2" />
+                  Delete Selected ({{ bulk.selectedIds.value.length }})
+                </Button>
+                <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                  Clear Selection
+                </Button>
+              </template>
+              <Button variant="outline" size="sm" @click="exportUsers">
+                <Download class="h-4 w-4 mr-2" />
+                Export CSV
               </Button>
-              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-                Clear Selection
-              </Button>
-            </template>
-            <Button variant="outline" size="sm" @click="exportUsers">
-              <Download class="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            </div>
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="users-filter-presets"
+                :route-url="users.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="users-column-preferences"
+                :default-columns="[
+                  { key: 'name', label: 'Name', locked: true },
+                  { key: 'email', label: 'Email', locked: true },
+                  { key: 'job_title', label: 'Job Title' },
+                  { key: 'role', label: 'Role' },
+                  { key: 'access_level', label: 'Access Level' },
+                  { key: 'sites', label: 'Sites' },
+                  { key: 'status', label: 'Status' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -242,11 +282,11 @@ function exportUsers() {
                 </TableHead>
                 <SortableTableHead column="name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Name</SortableTableHead>
                 <SortableTableHead column="email" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Email</SortableTableHead>
-                <TableHead>Job Title</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Access</TableHead>
-                <TableHead>Sites</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('job_title')">Job Title</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('role')">Role</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('access_level')">Access</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('sites')">Sites</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('status')">Status</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -265,20 +305,20 @@ function exportUsers() {
                 </TableCell>
                 <TableCell class="font-medium">{{ user.name }}</TableCell>
                 <TableCell>{{ user.email }}</TableCell>
-                <TableCell>{{ user.job_title || '—' }}</TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('job_title')">{{ user.job_title || '—' }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('role')">
                   <Badge :variant="user.role === 'admin' ? 'default' : 'secondary'">
                     {{ user.role }}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('access_level')">
                   <Badge variant="outline">{{ user.access_level }}</Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('sites')">
                   <span v-if="user.access_level === 'all'">All Sites</span>
                   <span v-else>{{ user.sites.length }} sites</span>
                 </TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('status')">
                   <Badge :variant="getStatusBadge(user).variant">
                     {{ getStatusBadge(user).label }}
                   </Badge>

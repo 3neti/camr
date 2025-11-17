@@ -35,6 +35,9 @@ import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface Gateway {
   id: number
@@ -137,6 +140,21 @@ function handleSort(column: string) {
   })
 }
 
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'gateways-column-preferences',
+  defaultColumns: [
+    { key: 'checkbox', label: 'Select', locked: true },
+    { key: 'serial_number', label: 'Serial Number', locked: true },
+    { key: 'site', label: 'Site' },
+    { key: 'mac_address', label: 'MAC Address' },
+    { key: 'ip_address', label: 'IP Address' },
+    { key: 'status', label: 'Status' },
+    { key: 'last_update', label: 'Last Update' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
+
 // Export
 const { exportToCSV } = useExport()
 
@@ -230,20 +248,42 @@ function exportGateways() {
               </div>
             </div>
           </div>
-          <div class="mt-4 flex items-center gap-2">
-            <template v-if="bulk.hasSelection.value">
-              <Button variant="destructive" size="sm" @click="bulkDeleteGateways">
-                <Trash2 class="h-4 w-4 mr-2" />
-                Delete Selected ({{ bulk.selectedIds.value.length }})
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <template v-if="bulk.hasSelection.value">
+                <Button variant="destructive" size="sm" @click="bulkDeleteGateways">
+                  <Trash2 class="h-4 w-4 mr-2" />
+                  Delete Selected ({{ bulk.selectedIds.value.length }})
+                </Button>
+                <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                  Clear Selection
+                </Button>
+              </template>
+              <Button variant="outline" size="sm" @click="exportGateways">
+                <Download class="h-4 w-4 mr-2" />
+                Export CSV
               </Button>
-              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-                Clear Selection
-              </Button>
-            </template>
-            <Button variant="outline" size="sm" @click="exportGateways">
-              <Download class="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            </div>
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="gateways-filter-presets"
+                :route-url="gateways.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="gateways-column-preferences"
+                :default-columns="[
+                  { key: 'checkbox', label: 'Select', locked: true },
+                  { key: 'serial_number', label: 'Serial Number', locked: true },
+                  { key: 'site', label: 'Site' },
+                  { key: 'mac_address', label: 'MAC Address' },
+                  { key: 'ip_address', label: 'IP Address' },
+                  { key: 'status', label: 'Status' },
+                  { key: 'last_update', label: 'Last Update' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -258,11 +298,11 @@ function exportGateways() {
                   />
                 </TableHead>
                 <SortableTableHead column="serial_number" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Serial Number</SortableTableHead>
-                <TableHead>Site</TableHead>
-                <SortableTableHead column="mac_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">MAC Address</SortableTableHead>
-                <SortableTableHead column="ip_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">IP Address</SortableTableHead>
-                <SortableTableHead column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
-                <TableHead>Last Update</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('mac_address')" column="mac_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">MAC Address</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('ip_address')" column="ip_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">IP Address</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('last_update')">Last Update</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -280,15 +320,15 @@ function exportGateways() {
                   />
                 </TableCell>
                 <TableCell class="font-medium">{{ gateway.serial_number }}</TableCell>
-                <TableCell>{{ gateway.site.code }}</TableCell>
-                <TableCell>{{ gateway.mac_address || '—' }}</TableCell>
-                <TableCell>{{ gateway.ip_address || '—' }}</TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('site')">{{ gateway.site.code }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('mac_address')">{{ gateway.mac_address || '—' }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('ip_address')">{{ gateway.ip_address || '—' }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('status')">
                   <Badge :class="getStatusColor(gateway.status)" variant="outline">
                     {{ gateway.status }}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('last_update')">
                   {{ gateway.last_log_update ? new Date(gateway.last_log_update).toLocaleString() : 'Never' }}
                 </TableCell>
                 <TableCell class="text-right">

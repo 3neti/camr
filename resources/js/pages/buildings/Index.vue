@@ -13,6 +13,9 @@ import * as buildings from '@/actions/App/Http/Controllers/BuildingController'
 import { Plus, Search, Building2, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import FilterPresets from '@/components/FilterPresets.vue'
+import ColumnPreferences from '@/components/ColumnPreferences.vue'
+import { useColumnPreferences } from '@/composables/useColumnPreferences'
 
 interface Props {
   buildings: {
@@ -54,6 +57,18 @@ function handleSort(column: string) {
     site_id: siteId.value !== 'all' ? siteId.value : undefined,
   })
 }
+
+// Column preferences
+const columnPrefs = useColumnPreferences({
+  storageKey: 'buildings-column-preferences',
+  defaultColumns: [
+    { key: 'code', label: 'Code', locked: true },
+    { key: 'description', label: 'Description' },
+    { key: 'site', label: 'Site' },
+    { key: 'created', label: 'Created' },
+    { key: 'actions', label: 'Actions', locked: true },
+  ],
+})
 
 // Export
 const { exportToCSV } = useExport()
@@ -110,11 +125,28 @@ function exportBuildings() {
               </div>
             </div>
           </div>
-          <div class="mt-4">
+          <div class="mt-4 flex items-center justify-between">
             <Button variant="outline" size="sm" @click="exportBuildings">
               <Download class="h-4 w-4 mr-2" />
               Export CSV
             </Button>
+            <div class="flex items-center gap-2">
+              <FilterPresets
+                storage-key="buildings-filter-presets"
+                :route-url="buildings.index().url"
+                :current-filters="props.filters"
+              />
+              <ColumnPreferences
+                storage-key="buildings-column-preferences"
+                :default-columns="[
+                  { key: 'code', label: 'Code', locked: true },
+                  { key: 'description', label: 'Description' },
+                  { key: 'site', label: 'Site' },
+                  { key: 'created', label: 'Created' },
+                  { key: 'actions', label: 'Actions', locked: true },
+                ]"
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -122,9 +154,9 @@ function exportBuildings() {
             <TableHeader>
               <TableRow>
                 <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
-                <SortableTableHead column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
-                <TableHead>Site</TableHead>
-                <TableHead>Created</TableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('description')" column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('created')">Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -134,9 +166,9 @@ function exportBuildings() {
               </TableRow>
               <TableRow v-for="building in props.buildings.data" :key="building.id">
                 <TableCell class="font-medium">{{ building.code }}</TableCell>
-                <TableCell>{{ building.description || '—' }}</TableCell>
-                <TableCell><Badge variant="outline">{{ building.site.code }}</Badge></TableCell>
-                <TableCell>{{ new Date(building.created_at).toLocaleDateString() }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('description')">{{ building.description || '—' }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('site')"><Badge variant="outline">{{ building.site.code }}</Badge></TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('created')">{{ new Date(building.created_at).toLocaleDateString() }}</TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" @click="router.visit(buildings.show({ building: building.id }).url)">
