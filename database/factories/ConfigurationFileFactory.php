@@ -17,8 +17,8 @@ class ConfigurationFileFactory extends Factory
     public function definition(): array
     {
         return [
-            'meter_model' => fake()->randomElement(['ION6200', 'PM8000', 'PM5500']),
-            'config_file_content' => fake()->text(200),
+            'meter_model' => $this->faker->randomElement(['ION6200', 'PM8000', 'PM5500']),
+            'config_file_content' => $this->faker->text(200),
         ];
     }
 }

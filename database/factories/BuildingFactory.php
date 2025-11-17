@@ -18,9 +18,9 @@ class BuildingFactory extends Factory
     {
         return [
             'site_id' => \App\Models\Site::factory(),
-            'code' => fake()->unique()->bothify('BLD-###'),
-            'description' => fake()->words(3, true),
-            'billing_cutoff_day' => fake()->numberBetween(1, 28),
+            'code' => $this->faker->unique()->bothify('BLD-###'),
+            'description' => $this->faker->words(3, true),
+            'billing_cutoff_day' => $this->faker->numberBetween(1, 28),
         ];
     }
 }

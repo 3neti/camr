@@ -17,8 +17,8 @@ class DivisionFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->unique()->regexify('[A-Z]{2}[0-9]{2}'),
-            'name' => fake()->words(3, true),
+            'code' => $this->faker->unique()->regexify('[A-Z]{2}[0-9]{2}'),
+            'name' => $this->faker->words(3, true),
         ];
     }
 }

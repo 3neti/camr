@@ -19,11 +19,11 @@ class GatewayFactory extends Factory
         return [
             'site_id' => \App\Models\Site::factory(),
             'location_id' => \App\Models\Location::factory(),
-            'site_code' => fake()->regexify('[A-Z]{3}-[0-9]{2}'),
-            'serial_number' => fake()->unique()->bothify('GW-####-####'),
-            'mac_address' => fake()->unique()->macAddress(),
-            'ip_address' => fake()->unique()->localIpv4(),
-            'connection_type' => fake()->randomElement(['LAN', '3G', '4G', '5G']),
+            'site_code' => $this->faker->regexify('[A-Z]{3}-[0-9]{2}'),
+            'serial_number' => $this->faker->unique()->bothify('GW-####-####'),
+            'mac_address' => $this->faker->unique()->macAddress(),
+            'ip_address' => $this->faker->unique()->localIpv4(),
+            'connection_type' => $this->faker->randomElement(['LAN', '3G', '4G', '5G']),
             'last_log_update' => now(),
         ];
     }

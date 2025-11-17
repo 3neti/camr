@@ -19,7 +19,7 @@ class SiteFactory extends Factory
         return [
             'company_id' => \App\Models\Company::factory(),
             'division_id' => \App\Models\Division::factory(),
-            'code' => fake()->unique()->regexify('[A-Z]{3}-[0-9]{2}'),
+            'code' => $this->faker->unique()->regexify('[A-Z]{3}-[0-9]{2}'),
             'last_log_update' => now(),
         ];
     }

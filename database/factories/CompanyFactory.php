@@ -17,8 +17,8 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->unique()->regexify('[A-Z]{3}'),
-            'name' => fake()->company(),
+            'code' => $this->faker->unique()->regexify('[A-Z]{3}'),
+            'name' => $this->faker->company(),
         ];
     }
 }

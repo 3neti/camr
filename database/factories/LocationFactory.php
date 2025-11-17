@@ -19,8 +19,8 @@ class LocationFactory extends Factory
         return [
             'site_id' => \App\Models\Site::factory(),
             'building_id' => \App\Models\Building::factory(),
-            'code' => fake()->unique()->bothify('EER-##-???-####'),
-            'description' => 'EE Room ' . fake()->word(),
+            'code' => $this->faker->unique()->bothify('EER-##-???-####'),
+            'description' => 'EE Room ' . $this->faker->word(),
         ];
     }
 }
