@@ -39,6 +39,9 @@ Route::middleware(['auth'])->group(function () {
     
     // Global search
     Route::get('api/search', [\App\Http\Controllers\Api\SearchController::class, 'search']);
+    
+    // Demo pages (for development)
+    Route::get('demo/notifications', fn() => Inertia::render('Demo/Notifications'))->name('demo.notifications');
 });
 
 require __DIR__.'/settings.php';
