@@ -12,15 +12,6 @@ class SiteSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create a test user if none exists
-        if (! User::exists()) {
-            User::factory()->create([
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'password' => bcrypt('password'),
-            ]);
-        }
-
         // Create a company if none exists
         $company = Company::first() ?: Company::factory()->create();
 
