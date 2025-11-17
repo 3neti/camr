@@ -12,17 +12,26 @@ class SiteController extends Controller
 {
     public function index(Request $request): Response
     {
-        $sites = Site::with(['company', 'division'])
+        $query = Site::with(['company', 'division'])
             ->when($request->search, function ($query, $search) {
                 $query->where('code', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            });
+
+        // Sorting
+        $sortColumn = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortColumn, ['code', 'status', 'created_at'])) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest();
+        }
+
+        $sites = $query->paginate(15)->withQueryString();
 
         return Inertia::render('sites/Index', [
             'sites' => $sites,
-            'filters' => $request->only('search'),
+            'filters' => $request->only(['search', 'sort', 'direction']),
         ]);
     }
 
