@@ -14,6 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import * as sites from '@/actions/App/Http/Controllers/SiteController';
 import * as buildings from '@/actions/App/Http/Controllers/BuildingController';
+import * as locations from '@/actions/App/Http/Controllers/LocationController';
 import * as gateways from '@/actions/App/Http/Controllers/GatewayController';
 import * as meters from '@/actions/App/Http/Controllers/MeterController';
 import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileController';
@@ -39,6 +40,11 @@ const mainNavItems: NavItem[] = [
         title: 'Buildings',
         href: buildings.index().url,
         icon: Building2,
+    },
+    {
+        title: 'Locations',
+        href: locations.index().url,
+        icon: MapPin,
     },
     {
         title: 'Gateways',

@@ -1,0 +1,161 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { Head, Link, router } from '@inertiajs/vue3'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import SortableTableHead from '@/components/SortableTableHead.vue'
+import * as locations from '@/actions/App/Http/Controllers/LocationController'
+import { Plus, Search, MapPin, Pencil, Trash2, Eye } from 'lucide-vue-next'
+import { useSortable } from '@/composables/useSortable'
+
+interface Props {
+  locations: {
+    data: Array<{
+      id: number
+      code: string
+      description: string
+      site: { id: number; code: string }
+      building: { id: number; code: string } | null
+      created_at: string
+    }>
+    total: number
+    last_page: number
+    links: Array<{ url: string | null; label: string; active: boolean }>
+  }
+  sites: Array<{ id: number; code: string }>
+  buildings: Array<{ id: number; code: string; site_id: number }>
+  filters: { search?: string; site_id?: string; building_id?: string; sort?: string; direction?: 'asc' | 'desc' }
+}
+
+const props = defineProps<Props>()
+const search = ref(props.filters.search || '')
+const siteId = ref(props.filters.site_id || 'all')
+const buildingId = ref(props.filters.building_id || 'all')
+
+// Filter buildings based on selected site
+const filteredBuildings = computed(() => {
+  if (siteId.value === 'all') return props.buildings
+  return props.buildings.filter(b => b.site_id === parseInt(siteId.value))
+})
+
+function applyFilters() {
+  router.get(locations.index().url, {
+    search: search.value || undefined,
+    site_id: siteId.value !== 'all' ? siteId.value : undefined,
+    building_id: buildingId.value !== 'all' ? buildingId.value : undefined,
+  }, { preserveState: true, preserveScroll: true })
+}
+
+// Sorting
+const sorting = useSortable(locations.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, {
+    search: search.value || undefined,
+    site_id: siteId.value !== 'all' ? siteId.value : undefined,
+    building_id: buildingId.value !== 'all' ? buildingId.value : undefined,
+  })
+}
+</script>
+
+<template>
+  <Head title="Locations" />
+  <AppLayout>
+    <div class="container mx-auto py-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <MapPin class="h-8 w-8" />
+            Locations
+          </h1>
+          <p class="text-muted-foreground">Manage facility locations</p>
+        </div>
+        <Link :href="locations.create().url">
+          <Button><Plus class="mr-2 h-4 w-4" />Add Location</Button>
+        </Link>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>All Locations</CardTitle>
+              <CardDescription>{{ props.locations.total }} total locations</CardDescription>
+            </div>
+            <div class="flex gap-3">
+              <Select v-model="siteId" @update:model-value="applyFilters">
+                <SelectTrigger class="w-40"><SelectValue placeholder="Site" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sites</SelectItem>
+                  <SelectItem v-for="site in props.sites" :key="site.id" :value="site.id.toString()">{{ site.code }}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select v-model="buildingId" @update:model-value="applyFilters">
+                <SelectTrigger class="w-40"><SelectValue placeholder="Building" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Buildings</SelectItem>
+                  <SelectItem v-for="building in filteredBuildings" :key="building.id" :value="building.id.toString()">{{ building.code }}</SelectItem>
+                </SelectContent>
+              </Select>
+              <div class="relative w-80">
+                <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input v-model="search" placeholder="Search locations..." class="pl-10" @keyup.enter="applyFilters" />
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
+                <SortableTableHead column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
+                <TableHead>Site</TableHead>
+                <TableHead>Building</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead class="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-if="props.locations.data.length === 0">
+                <TableCell colspan="6" class="text-center text-muted-foreground">No locations found</TableCell>
+              </TableRow>
+              <TableRow v-for="location in props.locations.data" :key="location.id">
+                <TableCell class="font-medium">{{ location.code }}</TableCell>
+                <TableCell>{{ location.description }}</TableCell>
+                <TableCell><Badge variant="outline">{{ location.site.code }}</Badge></TableCell>
+                <TableCell>{{ location.building?.code || '—' }}</TableCell>
+                <TableCell>{{ new Date(location.created_at).toLocaleDateString() }}</TableCell>
+                <TableCell class="text-right">
+                  <div class="flex justify-end gap-2">
+                    <Button variant="ghost" size="sm" @click="router.visit(locations.show({ location: location.id }).url)">
+                      <Eye class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" @click="router.visit(locations.edit({ location: location.id }).url)">
+                      <Pencil class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" @click="router.delete(locations.destroy({ location: location.id }).url)">
+                      <Trash2 class="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+
+          <div v-if="props.locations.last_page > 1" class="flex items-center justify-center gap-2 mt-4">
+            <Button v-for="link in props.locations.links" :key="link.label" :variant="link.active ? 'default' : 'outline'" size="sm" :disabled="!link.url" @click="link.url && router.visit(link.url)" v-html="link.label" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </AppLayout>
+</template>

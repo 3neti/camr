@@ -19,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('sites', \App\Http\Controllers\SiteController::class);
     Route::post('sites/bulk-delete', [\App\Http\Controllers\SiteController::class, 'bulkDestroy'])->name('sites.bulk-destroy');
     Route::resource('buildings', \App\Http\Controllers\BuildingController::class);
+    Route::resource('locations', \App\Http\Controllers\LocationController::class);
     Route::resource('gateways', \App\Http\Controllers\GatewayController::class);
     Route::post('gateways/bulk-delete', [\App\Http\Controllers\GatewayController::class, 'bulkDestroy'])->name('gateways.bulk-destroy');
     Route::resource('meters', \App\Http\Controllers\MeterController::class);
