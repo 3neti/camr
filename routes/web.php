@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/power-data', [\App\Http\Controllers\Api\ReportsController::class, 'meterPowerData']);
         Route::get('/load-profile', [\App\Http\Controllers\Api\ReportsController::class, 'meterLoadProfile']);
         Route::get('/energy-summary', [\App\Http\Controllers\Api\ReportsController::class, 'meterEnergySummary']);
+        Route::get('/comparison', [\App\Http\Controllers\Api\ReportsController::class, 'meterComparison']);
     });
 });
 

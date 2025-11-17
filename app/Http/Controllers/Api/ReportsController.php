@@ -178,4 +178,103 @@ class ReportsController extends Controller
             'daily_breakdown' => $dailyAvg,
         ]);
     }
+
+    /**
+     * Get period comparison (MoM or YoY)
+     */
+    public function meterComparison(Request $request, Meter $meter)
+    {
+        $request->validate([
+            'current_start' => 'required|date',
+            'current_end' => 'required|date|after_or_equal:current_start',
+            'previous_start' => 'required|date',
+            'previous_end' => 'required|date|after_or_equal:previous_start',
+        ]);
+
+        $currentStart = Carbon::parse($request->input('current_start'));
+        $currentEnd = Carbon::parse($request->input('current_end'));
+        $previousStart = Carbon::parse($request->input('previous_start'));
+        $previousEnd = Carbon::parse($request->input('previous_end'));
+
+        // Get current period data
+        $currentLatest = MeterData::where('meter_name', $meter->name)
+            ->where('reading_datetime', '>=', $currentStart)
+            ->where('reading_datetime', '<=', $currentEnd)
+            ->orderBy('reading_datetime', 'desc')
+            ->first();
+
+        $currentOldest = MeterData::where('meter_name', $meter->name)
+            ->where('reading_datetime', '>=', $currentStart)
+            ->where('reading_datetime', '<=', $currentEnd)
+            ->orderBy('reading_datetime', 'asc')
+            ->first();
+
+        // Get previous period data
+        $previousLatest = MeterData::where('meter_name', $meter->name)
+            ->where('reading_datetime', '>=', $previousStart)
+            ->where('reading_datetime', '<=', $previousEnd)
+            ->orderBy('reading_datetime', 'desc')
+            ->first();
+
+        $previousOldest = MeterData::where('meter_name', $meter->name)
+            ->where('reading_datetime', '>=', $previousStart)
+            ->where('reading_datetime', '<=', $previousEnd)
+            ->orderBy('reading_datetime', 'asc')
+            ->first();
+
+        // Calculate consumption for both periods
+        $currentConsumption = ($currentLatest && $currentOldest) 
+            ? $currentLatest->wh_delivered - $currentOldest->wh_delivered 
+            : 0;
+
+        $previousConsumption = ($previousLatest && $previousOldest) 
+            ? $previousLatest->wh_delivered - $previousOldest->wh_delivered 
+            : 0;
+
+        // Calculate averages
+        $currentAvg = MeterData::where('meter_name', $meter->name)
+            ->where('reading_datetime', '>=', $currentStart)
+            ->where('reading_datetime', '<=', $currentEnd)
+            ->avg('watt');
+
+        $previousAvg = MeterData::where('meter_name', $meter->name)
+            ->where('reading_datetime', '>=', $previousStart)
+            ->where('reading_datetime', '<=', $previousEnd)
+            ->avg('watt');
+
+        // Calculate change
+        $change = $currentConsumption - $previousConsumption;
+        $changePercent = $previousConsumption > 0 
+            ? ($change / $previousConsumption) * 100 
+            : 0;
+
+        return response()->json([
+            'meter' => $meter->name,
+            'current' => [
+                'start' => $currentStart->toIso8601String(),
+                'end' => $currentEnd->toIso8601String(),
+                'consumption' => $currentConsumption,
+                'avg_power' => $currentAvg,
+                'readings_count' => MeterData::where('meter_name', $meter->name)
+                    ->where('reading_datetime', '>=', $currentStart)
+                    ->where('reading_datetime', '<=', $currentEnd)
+                    ->count(),
+            ],
+            'previous' => [
+                'start' => $previousStart->toIso8601String(),
+                'end' => $previousEnd->toIso8601String(),
+                'consumption' => $previousConsumption,
+                'avg_power' => $previousAvg,
+                'readings_count' => MeterData::where('meter_name', $meter->name)
+                    ->where('reading_datetime', '>=', $previousStart)
+                    ->where('reading_datetime', '<=', $previousEnd)
+                    ->count(),
+            ],
+            'comparison' => [
+                'change' => $change,
+                'change_percent' => round($changePercent, 2),
+                'trend' => $change >= 0 ? 'up' : 'down',
+            ],
+        ]);
+    }
 }

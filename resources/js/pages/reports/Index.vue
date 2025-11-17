@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, Link } from '@inertiajs/vue3'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import axios from 'axios'
 import DateRangePicker from '@/components/DateRangePicker.vue'
+import ComparisonCard from '@/components/ComparisonCard.vue'
+import { useComparison } from '@/composables/useComparison'
 
 interface Props {
   sites: Array<{
@@ -43,6 +45,46 @@ const exportFormat = ref<string>('csv')
 const interval = ref<'hour' | 'day'>('hour')
 const isExporting = ref(false)
 const selectedRange = ref<{ start: Date; end: Date } | null>(null)
+
+// Comparison setup
+const comparison = useComparison('month')
+const comparisonData = ref<any>(null)
+const isLoadingComparison = ref(false)
+
+async function loadComparison() {
+  if (!selectedMeter.value) return
+
+  const periods = comparison.getPeriods()
+  const formatDate = (d: Date) => {
+    const tzOffsetMs = d.getTimezoneOffset() * 60000
+    return new Date(d.getTime() - tzOffsetMs).toISOString().slice(0, 10)
+  }
+
+  isLoadingComparison.value = true
+  try {
+    const response = await axios.get(`/api/meters/${selectedMeter.value}/comparison`, {
+      params: {
+        current_start: formatDate(periods.current.start),
+        current_end: formatDate(periods.current.end),
+        previous_start: formatDate(periods.previous.start),
+        previous_end: formatDate(periods.previous.end),
+      },
+    })
+    comparisonData.value = response.data
+  } catch (error) {
+    console.error('Comparison error:', error)
+    comparisonData.value = null
+  } finally {
+    isLoadingComparison.value = false
+  }
+}
+
+// Watch meter selection
+watch(selectedMeter, () => {
+  if (selectedMeter.value) {
+    loadComparison()
+  }
+})
 
 async function exportData() {
   if (!selectedMeter.value) {
@@ -254,6 +296,68 @@ function updateFilteredMeters(siteCode: string) {
             <Download class="h-4 w-4 mr-2" />
             {{ isExporting ? 'Exporting...' : 'Export Data (Last 30 Days)' }}
           </Button>
+        </CardContent>
+      </Card>
+
+      <!-- Comparison Analysis -->
+      <Card v-if="selectedMeter">
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>Period Comparison</CardTitle>
+              <CardDescription>Month-over-month analysis for selected meter</CardDescription>
+            </div>
+            <div class="flex gap-2">
+              <Button 
+                :variant="comparison.comparisonPeriod.value === 'month' ? 'default' : 'outline'" 
+                size="sm"
+                @click="() => { comparison.comparisonPeriod.value = 'month'; loadComparison(); }"
+              >
+                Month
+              </Button>
+              <Button 
+                :variant="comparison.comparisonPeriod.value === 'year' ? 'default' : 'outline'" 
+                size="sm"
+                @click="() => { comparison.comparisonPeriod.value = 'year'; loadComparison(); }"
+              >
+                Year
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div v-if="isLoadingComparison" class="text-center py-8 text-muted-foreground">
+            Loading comparison data...
+          </div>
+          <div v-else-if="!comparisonData" class="text-center py-8 text-muted-foreground">
+            No data available for comparison
+          </div>
+          <div v-else class="grid gap-4 md:grid-cols-3">
+            <ComparisonCard
+              title="Energy Consumption"
+              :current-label="comparisonData.current.start.split('T')[0] + ' to ' + comparisonData.current.end.split('T')[0]"
+              :previous-label="comparisonData.previous.start.split('T')[0] + ' to ' + comparisonData.previous.end.split('T')[0]"
+              :current-value="comparisonData.current.consumption"
+              :previous-value="comparisonData.previous.consumption"
+              format="energy"
+            />
+            <ComparisonCard
+              title="Average Power"
+              :current-label="comparisonData.current.start.split('T')[0] + ' to ' + comparisonData.current.end.split('T')[0]"
+              :previous-label="comparisonData.previous.start.split('T')[0] + ' to ' + comparisonData.previous.end.split('T')[0]"
+              :current-value="comparisonData.current.avg_power || 0"
+              :previous-value="comparisonData.previous.avg_power || 0"
+              format="power"
+            />
+            <ComparisonCard
+              title="Data Points"
+              :current-label="comparisonData.current.start.split('T')[0] + ' to ' + comparisonData.current.end.split('T')[0]"
+              :previous-label="comparisonData.previous.start.split('T')[0] + ' to ' + comparisonData.previous.end.split('T')[0]"
+              :current-value="comparisonData.current.readings_count"
+              :previous-value="comparisonData.previous.readings_count"
+              format="number"
+            />
+          </div>
         </CardContent>
       </Card>
 
