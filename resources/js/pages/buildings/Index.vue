@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as buildings from '@/actions/App/Http/Controllers/BuildingController'
 import { Plus, Search, Building2, Pencil, Trash2, Eye } from 'lucide-vue-next'
+import { useSortable } from '@/composables/useSortable'
 
 interface Props {
   buildings: {
@@ -25,7 +27,7 @@ interface Props {
     links: Array<{ url: string | null; label: string; active: boolean }>
   }
   sites: Array<{ id: number; code: string }>
-  filters: { search?: string; site_id?: string }
+  filters: { search?: string; site_id?: string; sort?: string; direction?: 'asc' | 'desc' }
 }
 
 const props = defineProps<Props>()
@@ -37,6 +39,19 @@ function applyFilters() {
     search: search.value || undefined,
     site_id: siteId.value !== 'all' ? siteId.value : undefined,
   }, { preserveState: true, preserveScroll: true })
+}
+
+// Sorting
+const sorting = useSortable(buildings.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, {
+    search: search.value || undefined,
+    site_id: siteId.value !== 'all' ? siteId.value : undefined,
+  })
 }
 </script>
 
@@ -83,8 +98,8 @@ function applyFilters() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Description</TableHead>
+                <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
+                <SortableTableHead column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
                 <TableHead>Site</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>

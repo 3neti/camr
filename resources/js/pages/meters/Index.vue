@@ -9,10 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import SortableTableHead from '@/components/SortableTableHead.vue'
 import { Plus, Search, Trash2, Eye, Pencil, Zap } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
+import { useSortable } from '@/composables/useSortable'
 
 interface Meter {
   id: number
@@ -41,6 +43,8 @@ interface Props {
     gateway_id?: number
     site_id?: number
     status?: string
+    sort?: string
+    direction?: 'asc' | 'desc'
   }
 }
 
@@ -87,6 +91,21 @@ function bulkDeleteMeters() {
       onSuccess: () => bulk.clearSelection()
     })
   }
+}
+
+// Sorting
+const sorting = useSortable(meters.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, {
+    search: search.value || undefined,
+    gateway_id: gatewayId.value !== 'all' ? gatewayId.value : undefined,
+    site_id: siteId.value !== 'all' ? siteId.value : undefined,
+    status: status.value !== 'all' ? status.value : undefined,
+  })
 }
 </script>
 
@@ -173,13 +192,13 @@ function bulkDeleteMeters() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Brand</TableHead>
-                <TableHead>Customer</TableHead>
+                <SortableTableHead column="name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Name</SortableTableHead>
+                <SortableTableHead column="type" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Type</SortableTableHead>
+                <SortableTableHead column="brand" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Brand</SortableTableHead>
+                <SortableTableHead column="customer_name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Customer</SortableTableHead>
                 <TableHead>Site</TableHead>
                 <TableHead>Gateway</TableHead>
-                <TableHead>Status</TableHead>
+                <SortableTableHead column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>

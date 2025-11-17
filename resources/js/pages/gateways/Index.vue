@@ -28,10 +28,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import SortableTableHead from '@/components/SortableTableHead.vue'
 import { Plus, Search, Trash2, Eye, Pencil, Radio } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
+import { useSortable } from '@/composables/useSortable'
 
 interface Gateway {
   id: number
@@ -63,6 +65,8 @@ interface Props {
     search?: string
     site_id?: number
     status?: string
+    sort?: string
+    direction?: 'asc' | 'desc'
   }
 }
 
@@ -116,6 +120,20 @@ function bulkDeleteGateways() {
       onSuccess: () => bulk.clearSelection()
     })
   }
+}
+
+// Sorting
+const sorting = useSortable(gateways.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, {
+    search: search.value || undefined,
+    site_id: siteId.value !== 'all' ? siteId.value : undefined,
+    status: status.value !== 'all' ? status.value : undefined,
+  })
 }
 </script>
 
@@ -212,11 +230,11 @@ function bulkDeleteGateways() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <TableHead>Serial Number</TableHead>
+                <SortableTableHead column="serial_number" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Serial Number</SortableTableHead>
                 <TableHead>Site</TableHead>
-                <TableHead>MAC Address</TableHead>
-                <TableHead>IP Address</TableHead>
-                <TableHead>Status</TableHead>
+                <SortableTableHead column="mac_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">MAC Address</SortableTableHead>
+                <SortableTableHead column="ip_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">IP Address</SortableTableHead>
+                <SortableTableHead column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
                 <TableHead>Last Update</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>

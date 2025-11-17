@@ -9,9 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
+import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as users from '@/actions/App/Http/Controllers/UserController'
 import { Plus, Users, Search, Eye, Pencil, Trash2 } from 'lucide-vue-next'
 import { useBulkActions } from '@/composables/useBulkActions'
+import { useSortable } from '@/composables/useSortable'
 
 interface User {
   id: number
@@ -38,6 +40,8 @@ interface Props {
     search?: string
     role?: string
     status?: string
+    sort?: string
+    direction?: 'asc' | 'desc'
   }
 }
 
@@ -81,6 +85,20 @@ function bulkDeleteUsers() {
       onSuccess: () => bulk.clearSelection()
     })
   }
+}
+
+// Sorting
+const sorting = useSortable(users.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, {
+    search: search.value || undefined,
+    role: roleFilter.value !== 'all' ? roleFilter.value : undefined,
+    status: statusFilter.value !== 'all' ? statusFilter.value : undefined,
+  })
 }
 </script>
 
@@ -196,8 +214,8 @@ function bulkDeleteUsers() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
+                <SortableTableHead column="name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Name</SortableTableHead>
+                <SortableTableHead column="email" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Email</SortableTableHead>
                 <TableHead>Job Title</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Access</TableHead>

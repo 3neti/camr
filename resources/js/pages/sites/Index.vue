@@ -21,10 +21,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import SortableTableHead from '@/components/SortableTableHead.vue'
 import { Plus, Search, Trash2, Eye, Pencil } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
+import { useSortable } from '@/composables/useSortable'
 
 interface Site {
   id: number
@@ -46,6 +48,8 @@ interface Props {
   }
   filters: {
     search?: string
+    sort?: string
+    direction?: 'asc' | 'desc'
   }
 }
 
@@ -93,6 +97,16 @@ function bulkDeleteSites() {
       onSuccess: () => bulk.clearSelection()
     })
   }
+}
+
+// Sorting
+const sorting = useSortable(sites.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, { search: search.value || undefined })
 }
 </script>
 
@@ -158,10 +172,10 @@ function bulkDeleteSites() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <TableHead>Code</TableHead>
+                <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Division</TableHead>
-                <TableHead>Status</TableHead>
+                <SortableTableHead column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
                 <TableHead>Last Update</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>

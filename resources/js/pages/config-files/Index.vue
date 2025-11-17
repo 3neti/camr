@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileController'
 import { Plus, Search, FileCode, Pencil, Trash2, Eye } from 'lucide-vue-next'
+import { useSortable } from '@/composables/useSortable'
 
 interface Props {
   configFiles: {
@@ -22,7 +24,7 @@ interface Props {
     last_page: number
     links: Array<{ url: string | null; label: string; active: boolean }>
   }
-  filters: { search?: string }
+  filters: { search?: string; sort?: string; direction?: 'asc' | 'desc' }
 }
 
 const props = defineProps<Props>()
@@ -32,6 +34,16 @@ function applyFilters() {
   router.get(configFiles.index().url, {
     search: search.value || undefined,
   }, { preserveState: true, preserveScroll: true })
+}
+
+// Sorting
+const sorting = useSortable(configFiles.index().url, {
+  column: props.filters.sort || null,
+  direction: props.filters.direction || 'asc',
+})
+
+function handleSort(column: string) {
+  sorting.sort(column, { search: search.value || undefined })
 }
 </script>
 
@@ -69,7 +81,7 @@ function applyFilters() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Meter Model</TableHead>
+                <SortableTableHead column="meter_model" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Meter Model</SortableTableHead>
                 <TableHead>Meters Using</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
