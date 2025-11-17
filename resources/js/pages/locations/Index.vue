@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as locations from '@/actions/App/Http/Controllers/LocationController'
-import { Plus, Search, MapPin, Pencil, Trash2, Eye } from 'lucide-vue-next'
+import { Plus, Search, MapPin, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
+import { useExport } from '@/composables/useExport'
 
 interface Props {
   locations: {
@@ -64,6 +65,23 @@ function handleSort(column: string) {
     building_id: buildingId.value !== 'all' ? buildingId.value : undefined,
   })
 }
+
+// Export
+const { exportToCSV } = useExport()
+
+function exportLocations() {
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'code', label: 'Code' },
+    { key: 'description', label: 'Description' },
+    { key: 'site.code', label: 'Site' },
+    { key: 'building.code', label: 'Building' },
+    { key: 'created_at', label: 'Created At' },
+  ]
+  
+  const timestamp = new Date().toISOString().split('T')[0]
+  exportToCSV(props.locations.data, `locations-${timestamp}`, columns)
+}
 </script>
 
 <template>
@@ -110,6 +128,12 @@ function handleSort(column: string) {
                 <Input v-model="search" placeholder="Search locations..." class="pl-10" @keyup.enter="applyFilters" />
               </div>
             </div>
+          </div>
+          <div class="mt-4">
+            <Button variant="outline" size="sm" @click="exportLocations">
+              <Download class="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

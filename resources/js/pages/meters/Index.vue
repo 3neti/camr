@@ -10,11 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import SortableTableHead from '@/components/SortableTableHead.vue'
-import { Plus, Search, Trash2, Eye, Pencil, Zap } from 'lucide-vue-next'
+import { Plus, Search, Trash2, Eye, Pencil, Zap, Download } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
+import { useExport } from '@/composables/useExport'
 
 interface Meter {
   id: number
@@ -107,6 +108,26 @@ function handleSort(column: string) {
     status: status.value !== 'all' ? status.value : undefined,
   })
 }
+
+// Export
+const { exportToCSV } = useExport()
+
+function exportMeters() {
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'name', label: 'Name' },
+    { key: 'type', label: 'Type' },
+    { key: 'brand', label: 'Brand' },
+    { key: 'customer_name', label: 'Customer' },
+    { key: 'gateway.site.code', label: 'Site' },
+    { key: 'gateway.serial_number', label: 'Gateway' },
+    { key: 'status_label', label: 'Status' },
+    { key: 'last_log_update', label: 'Last Update' },
+  ]
+  
+  const timestamp = new Date().toISOString().split('T')[0]
+  exportToCSV(props.meters.data, `meters-${timestamp}`, columns)
+}
 </script>
 
 <template>
@@ -171,13 +192,19 @@ function handleSort(column: string) {
               </div>
             </div>
           </div>
-          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
-            <Button variant="destructive" size="sm" @click="bulkDeleteMeters">
-              <Trash2 class="h-4 w-4 mr-2" />
-              Delete Selected ({{ bulk.selectedIds.value.length }})
-            </Button>
-            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-              Clear Selection
+          <div class="mt-4 flex items-center gap-2">
+            <template v-if="bulk.hasSelection.value">
+              <Button variant="destructive" size="sm" @click="bulkDeleteMeters">
+                <Trash2 class="h-4 w-4 mr-2" />
+                Delete Selected ({{ bulk.selectedIds.value.length }})
+              </Button>
+              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                Clear Selection
+              </Button>
+            </template>
+            <Button variant="outline" size="sm" @click="exportMeters">
+              <Download class="h-4 w-4 mr-2" />
+              Export CSV
             </Button>
           </div>
         </CardHeader>

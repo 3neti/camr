@@ -11,9 +11,10 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as users from '@/actions/App/Http/Controllers/UserController'
-import { Plus, Users, Search, Eye, Pencil, Trash2 } from 'lucide-vue-next'
+import { Plus, Users, Search, Eye, Pencil, Trash2, Download } from 'lucide-vue-next'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
+import { useExport } from '@/composables/useExport'
 
 interface User {
   id: number
@@ -99,6 +100,25 @@ function handleSort(column: string) {
     role: roleFilter.value !== 'all' ? roleFilter.value : undefined,
     status: statusFilter.value !== 'all' ? statusFilter.value : undefined,
   })
+}
+
+// Export
+const { exportToCSV } = useExport()
+
+function exportUsers() {
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'job_title', label: 'Job Title' },
+    { key: 'role', label: 'Role' },
+    { key: 'access_level', label: 'Access Level' },
+    { key: 'is_active', label: 'Active' },
+    { key: 'expires_at', label: 'Expires At' },
+  ]
+  
+  const timestamp = new Date().toISOString().split('T')[0]
+  exportToCSV(props.users.data, `users-${timestamp}`, columns)
 }
 </script>
 
@@ -193,13 +213,19 @@ function handleSort(column: string) {
               · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
             </span>
           </CardDescription>
-          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
-            <Button variant="destructive" size="sm" @click="bulkDeleteUsers">
-              <Trash2 class="h-4 w-4 mr-2" />
-              Delete Selected ({{ bulk.selectedIds.value.length }})
-            </Button>
-            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-              Clear Selection
+          <div class="mt-4 flex items-center gap-2">
+            <template v-if="bulk.hasSelection.value">
+              <Button variant="destructive" size="sm" @click="bulkDeleteUsers">
+                <Trash2 class="h-4 w-4 mr-2" />
+                Delete Selected ({{ bulk.selectedIds.value.length }})
+              </Button>
+              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                Clear Selection
+              </Button>
+            </template>
+            <Button variant="outline" size="sm" @click="exportUsers">
+              <Download class="h-4 w-4 mr-2" />
+              Export CSV
             </Button>
           </div>
         </CardHeader>

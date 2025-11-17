@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as buildings from '@/actions/App/Http/Controllers/BuildingController'
-import { Plus, Search, Building2, Pencil, Trash2, Eye } from 'lucide-vue-next'
+import { Plus, Search, Building2, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
+import { useExport } from '@/composables/useExport'
 
 interface Props {
   buildings: {
@@ -53,6 +54,22 @@ function handleSort(column: string) {
     site_id: siteId.value !== 'all' ? siteId.value : undefined,
   })
 }
+
+// Export
+const { exportToCSV } = useExport()
+
+function exportBuildings() {
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'code', label: 'Code' },
+    { key: 'description', label: 'Description' },
+    { key: 'site.code', label: 'Site' },
+    { key: 'created_at', label: 'Created At' },
+  ]
+  
+  const timestamp = new Date().toISOString().split('T')[0]
+  exportToCSV(props.buildings.data, `buildings-${timestamp}`, columns)
+}
 </script>
 
 <template>
@@ -92,6 +109,12 @@ function handleSort(column: string) {
                 <Input v-model="search" placeholder="Search buildings..." class="pl-10" @keyup.enter="applyFilters" />
               </div>
             </div>
+          </div>
+          <div class="mt-4">
+            <Button variant="outline" size="sm" @click="exportBuildings">
+              <Download class="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

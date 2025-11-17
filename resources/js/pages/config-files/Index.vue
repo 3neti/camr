@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import SortableTableHead from '@/components/SortableTableHead.vue'
 import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileController'
-import { Plus, Search, FileCode, Pencil, Trash2, Eye } from 'lucide-vue-next'
+import { Plus, Search, FileCode, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
+import { useExport } from '@/composables/useExport'
 
 interface Props {
   configFiles: {
@@ -45,6 +46,21 @@ const sorting = useSortable(configFiles.index().url, {
 function handleSort(column: string) {
   sorting.sort(column, { search: search.value || undefined })
 }
+
+// Export
+const { exportToCSV } = useExport()
+
+function exportConfigFiles() {
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'meter_model', label: 'Meter Model' },
+    { key: 'meters_count', label: 'Meters Count' },
+    { key: 'created_at', label: 'Created At' },
+  ]
+  
+  const timestamp = new Date().toISOString().split('T')[0]
+  exportToCSV(props.configFiles.data, `config-files-${timestamp}`, columns)
+}
 </script>
 
 <template>
@@ -75,6 +91,12 @@ function handleSort(column: string) {
               <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input v-model="search" placeholder="Search meter models..." class="pl-10" @keyup.enter="applyFilters" />
             </div>
+          </div>
+          <div class="mt-4">
+            <Button variant="outline" size="sm" @click="exportConfigFiles">
+              <Download class="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

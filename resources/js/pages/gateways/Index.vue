@@ -29,11 +29,12 @@ import {
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import SortableTableHead from '@/components/SortableTableHead.vue'
-import { Plus, Search, Trash2, Eye, Pencil, Radio } from 'lucide-vue-next'
+import { Plus, Search, Trash2, Eye, Pencil, Radio, Download } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
+import { useExport } from '@/composables/useExport'
 
 interface Gateway {
   id: number
@@ -135,6 +136,26 @@ function handleSort(column: string) {
     status: status.value !== 'all' ? status.value : undefined,
   })
 }
+
+// Export
+const { exportToCSV } = useExport()
+
+function exportGateways() {
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'serial_number', label: 'Serial Number' },
+    { key: 'mac_address', label: 'MAC Address' },
+    { key: 'ip_address', label: 'IP Address' },
+    { key: 'site.code', label: 'Site' },
+    { key: 'location.code', label: 'Location' },
+    { key: 'status', label: 'Status' },
+    { key: 'last_log_update', label: 'Last Update' },
+    { key: 'created_at', label: 'Created At' },
+  ]
+  
+  const timestamp = new Date().toISOString().split('T')[0]
+  exportToCSV(props.gateways.data, `gateways-${timestamp}`, columns)
+}
 </script>
 
 <template>
@@ -209,13 +230,19 @@ function handleSort(column: string) {
               </div>
             </div>
           </div>
-          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
-            <Button variant="destructive" size="sm" @click="bulkDeleteGateways">
-              <Trash2 class="h-4 w-4 mr-2" />
-              Delete Selected ({{ bulk.selectedIds.value.length }})
-            </Button>
-            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
-              Clear Selection
+          <div class="mt-4 flex items-center gap-2">
+            <template v-if="bulk.hasSelection.value">
+              <Button variant="destructive" size="sm" @click="bulkDeleteGateways">
+                <Trash2 class="h-4 w-4 mr-2" />
+                Delete Selected ({{ bulk.selectedIds.value.length }})
+              </Button>
+              <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+                Clear Selection
+              </Button>
+            </template>
+            <Button variant="outline" size="sm" @click="exportGateways">
+              <Download class="h-4 w-4 mr-2" />
+              Export CSV
             </Button>
           </div>
         </CardHeader>
