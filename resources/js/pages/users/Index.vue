@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import * as users from '@/actions/App/Http/Controllers/UserController'
 import { Plus, Users, Search, Eye, Pencil, Trash2 } from 'lucide-vue-next'
+import { useBulkActions } from '@/composables/useBulkActions'
 
 interface User {
   id: number
@@ -66,6 +68,19 @@ function getStatusBadge(user: User) {
   if (!user.is_active) return { variant: 'destructive', label: 'Inactive' }
   if (user.expires_at && new Date(user.expires_at) < new Date()) return { variant: 'secondary', label: 'Expired' }
   return { variant: 'default', label: 'Active' }
+}
+
+// Bulk actions
+const bulk = useBulkActions(props.users.data)
+
+function bulkDeleteUsers() {
+  if (bulk.selectedIds.value.length === 0) return
+  
+  if (confirm(`Are you sure you want to delete ${bulk.selectedIds.value.length} users?`)) {
+    router.post('/users/bulk-delete', { ids: bulk.selectedIds.value }, {
+      onSuccess: () => bulk.clearSelection()
+    })
+  }
 }
 </script>
 
@@ -154,12 +169,33 @@ function getStatusBadge(user: User) {
       <Card>
         <CardHeader>
           <CardTitle>Users ({{ props.users.total }})</CardTitle>
-          <CardDescription>{{ props.users.current_page }} of {{ props.users.last_page }} pages</CardDescription>
+          <CardDescription>
+            {{ props.users.current_page }} of {{ props.users.last_page }} pages
+            <span v-if="bulk.hasSelection.value" class="ml-2">
+              · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
+            </span>
+          </CardDescription>
+          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
+            <Button variant="destructive" size="sm" @click="bulkDeleteUsers">
+              <Trash2 class="h-4 w-4 mr-2" />
+              Delete Selected ({{ bulk.selectedIds.value.length }})
+            </Button>
+            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+              Clear Selection
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead class="w-12">
+                  <Checkbox 
+                    :checked="bulk.allSelected.value" 
+                    :indeterminate="bulk.someSelected.value"
+                    @update:checked="bulk.allSelected.value = $event" 
+                  />
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Job Title</TableHead>
@@ -172,11 +208,17 @@ function getStatusBadge(user: User) {
             </TableHeader>
             <TableBody>
               <TableRow v-if="props.users.data.length === 0">
-                <TableCell colspan="8" class="text-center text-muted-foreground">
+                <TableCell colspan="9" class="text-center text-muted-foreground">
                   No users found
                 </TableCell>
               </TableRow>
               <TableRow v-for="user in props.users.data" :key="user.id">
+                <TableCell>
+                  <Checkbox 
+                    :checked="bulk.isSelected(user.id)" 
+                    @update:checked="bulk.toggleSelection(user.id)" 
+                  />
+                </TableCell>
                 <TableCell class="font-medium">{{ user.name }}</TableCell>
                 <TableCell>{{ user.email }}</TableCell>
                 <TableCell>{{ user.job_title || '—' }}</TableCell>

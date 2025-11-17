@@ -27,9 +27,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, Search, Trash2, Eye, Pencil, Radio } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
+import { useBulkActions } from '@/composables/useBulkActions'
 
 interface Gateway {
   id: number
@@ -102,6 +104,19 @@ const deleteGateway = (gateway: Gateway) => {
     router.delete(gateways.destroy({ gateway: gateway.id }).url)
   }
 }
+
+// Bulk actions
+const bulk = useBulkActions(props.gateways.data)
+
+function bulkDeleteGateways() {
+  if (bulk.selectedIds.value.length === 0) return
+  
+  if (confirm(`Are you sure you want to delete ${bulk.selectedIds.value.length} gateways?`)) {
+    router.post('/gateways/bulk-delete', { ids: bulk.selectedIds.value }, {
+      onSuccess: () => bulk.clearSelection()
+    })
+  }
+}
 </script>
 
 <template>
@@ -134,6 +149,9 @@ const deleteGateway = (gateway: Gateway) => {
               <CardTitle>All Gateways</CardTitle>
               <CardDescription>
                 {{ props.gateways.total }} total gateways
+                <span v-if="bulk.hasSelection.value" class="ml-2">
+                  · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
+                </span>
               </CardDescription>
             </div>
             <div class="flex gap-3">
@@ -173,11 +191,27 @@ const deleteGateway = (gateway: Gateway) => {
               </div>
             </div>
           </div>
+          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
+            <Button variant="destructive" size="sm" @click="bulkDeleteGateways">
+              <Trash2 class="h-4 w-4 mr-2" />
+              Delete Selected ({{ bulk.selectedIds.value.length }})
+            </Button>
+            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+              Clear Selection
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead class="w-12">
+                  <Checkbox 
+                    :checked="bulk.allSelected.value" 
+                    :indeterminate="bulk.someSelected.value"
+                    @update:checked="bulk.allSelected.value = $event" 
+                  />
+                </TableHead>
                 <TableHead>Serial Number</TableHead>
                 <TableHead>Site</TableHead>
                 <TableHead>MAC Address</TableHead>
@@ -189,11 +223,17 @@ const deleteGateway = (gateway: Gateway) => {
             </TableHeader>
             <TableBody>
               <TableRow v-if="props.gateways.data.length === 0">
-                <TableCell colspan="7" class="text-center text-muted-foreground">
+                <TableCell colspan="8" class="text-center text-muted-foreground">
                   No gateways found
                 </TableCell>
               </TableRow>
               <TableRow v-for="gateway in props.gateways.data" :key="gateway.id">
+                <TableCell>
+                  <Checkbox 
+                    :checked="bulk.isSelected(gateway.id)" 
+                    @update:checked="bulk.toggleSelection(gateway.id)" 
+                  />
+                </TableCell>
                 <TableCell class="font-medium">{{ gateway.serial_number }}</TableCell>
                 <TableCell>{{ gateway.site.code }}</TableCell>
                 <TableCell>{{ gateway.mac_address || '—' }}</TableCell>

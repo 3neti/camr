@@ -102,4 +102,17 @@ class GatewayController extends Controller
         return redirect()->route('gateways.index')
             ->with('success', 'Gateway deleted successfully.');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:gateways,id',
+        ]);
+
+        $count = Gateway::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('gateways.index')
+            ->with('success', "{$count} gateways deleted successfully.");
+    }
 }

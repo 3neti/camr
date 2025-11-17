@@ -179,7 +179,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // Prevent deleting yourself
+        // Prevent deleting your own account
         if ($user->id === auth()->id()) {
             return redirect()->back()
                 ->with('error', 'You cannot delete your own account.');
@@ -189,5 +189,26 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
             ->with('success', 'User deleted successfully.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+        ]);
+
+        // Prevent deleting your own account
+        $idsWithoutSelf = array_filter($request->ids, fn($id) => $id != auth()->id());
+
+        if (count($idsWithoutSelf) === 0) {
+            return redirect()->back()
+                ->with('error', 'Cannot delete your own account.');
+        }
+
+        $count = User::whereIn('id', $idsWithoutSelf)->delete();
+
+        return redirect()->route('users.index')
+            ->with('success', "{$count} users deleted successfully.");
     }
 }

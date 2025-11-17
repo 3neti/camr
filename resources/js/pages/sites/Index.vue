@@ -20,9 +20,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, Search, Trash2, Eye, Pencil } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
+import { useBulkActions } from '@/composables/useBulkActions'
 
 interface Site {
   id: number
@@ -79,6 +81,19 @@ const deleteSite = (site: Site) => {
     router.delete(sites.destroy({ site: site.id }).url)
   }
 }
+
+// Bulk actions
+const bulk = useBulkActions(props.sites.data)
+
+function bulkDeleteSites() {
+  if (bulk.selectedIds.value.length === 0) return
+  
+  if (confirm(`Are you sure you want to delete ${bulk.selectedIds.value.length} sites?`)) {
+    router.post('/sites/bulk-delete', { ids: bulk.selectedIds.value }, {
+      onSuccess: () => bulk.clearSelection()
+    })
+  }
+}
 </script>
 
 <template>
@@ -108,6 +123,9 @@ const deleteSite = (site: Site) => {
               <CardTitle>All Sites</CardTitle>
               <CardDescription>
                 {{ props.sites.total }} total sites
+                <span v-if="bulk.hasSelection.value" class="ml-2">
+                  · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
+                </span>
               </CardDescription>
             </div>
             <div class="relative w-80">
@@ -119,11 +137,27 @@ const deleteSite = (site: Site) => {
               />
             </div>
           </div>
+          <div v-if="bulk.hasSelection.value" class="mt-4 flex items-center gap-2">
+            <Button variant="destructive" size="sm" @click="bulkDeleteSites">
+              <Trash2 class="h-4 w-4 mr-2" />
+              Delete Selected ({{ bulk.selectedIds.value.length }})
+            </Button>
+            <Button variant="outline" size="sm" @click="bulk.clearSelection()">
+              Clear Selection
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead class="w-12">
+                  <Checkbox 
+                    :checked="bulk.allSelected.value" 
+                    :indeterminate="bulk.someSelected.value"
+                    @update:checked="bulk.allSelected.value = $event" 
+                  />
+                </TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Division</TableHead>
@@ -134,11 +168,17 @@ const deleteSite = (site: Site) => {
             </TableHeader>
             <TableBody>
               <TableRow v-if="props.sites.data.length === 0">
-                <TableCell colspan="6" class="text-center text-muted-foreground">
+                <TableCell colspan="7" class="text-center text-muted-foreground">
                   No sites found
                 </TableCell>
               </TableRow>
               <TableRow v-for="site in props.sites.data" :key="site.id">
+                <TableCell>
+                  <Checkbox 
+                    :checked="bulk.isSelected(site.id)" 
+                    @update:checked="bulk.toggleSelection(site.id)" 
+                  />
+                </TableCell>
                 <TableCell class="font-medium">{{ site.code }}</TableCell>
                 <TableCell>{{ site.company.name }}</TableCell>
                 <TableCell>{{ site.division.name }}</TableCell>

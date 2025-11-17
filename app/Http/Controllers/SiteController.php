@@ -89,4 +89,17 @@ class SiteController extends Controller
         return redirect()->route('sites.index')
             ->with('success', 'Site deleted successfully.');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:sites,id',
+        ]);
+
+        $count = Site::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('sites.index')
+            ->with('success', "{$count} sites deleted successfully.");
+    }
 }
