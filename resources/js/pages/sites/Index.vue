@@ -78,7 +78,9 @@ watch(search, () => {
 })
 
 const getStatusColor = (status: boolean) => {
-  return status ? 'bg-green-500' : 'bg-red-500'
+  return status 
+    ? 'bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30' 
+    : 'bg-red-500/10 text-red-700 border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/30'
 }
 
 const deleteSite = (site: Site) => {
@@ -257,7 +259,7 @@ function exportSites() {
                 <TableCell v-if="columnPrefs.isColumnVisible('company')">{{ site.company.name }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('division')">{{ site.division.name }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('status')">
-                  <Badge :class="getStatusColor(site.status)" variant="outline">
+                  <Badge :class="getStatusColor(site.status)">
                     {{ site.status_label }}
                   </Badge>
                 </TableCell>
