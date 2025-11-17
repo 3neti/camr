@@ -1,0 +1,112 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { Head, Link, router } from '@inertiajs/vue3'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileController'
+import { Plus, Search, FileCode, Pencil, Trash2, Eye } from 'lucide-vue-next'
+
+interface Props {
+  configFiles: {
+    data: Array<{
+      id: number
+      meter_model: string
+      meters_count: number
+      created_at: string
+    }>
+    total: number
+    last_page: number
+    links: Array<{ url: string | null; label: string; active: boolean }>
+  }
+  filters: { search?: string }
+}
+
+const props = defineProps<Props>()
+const search = ref(props.filters.search || '')
+
+function applyFilters() {
+  router.get(configFiles.index().url, {
+    search: search.value || undefined,
+  }, { preserveState: true, preserveScroll: true })
+}
+</script>
+
+<template>
+  <Head title="Configuration Files" />
+  <AppLayout>
+    <div class="container mx-auto py-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <FileCode class="h-8 w-8" />
+            Configuration Files
+          </h1>
+          <p class="text-muted-foreground">Manage meter configuration files</p>
+        </div>
+        <Link :href="configFiles.create().url">
+          <Button><Plus class="mr-2 h-4 w-4" />Add Config File</Button>
+        </Link>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>All Configuration Files</CardTitle>
+              <CardDescription>{{ props.configFiles.total }} total config files</CardDescription>
+            </div>
+            <div class="relative w-80">
+              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input v-model="search" placeholder="Search meter models..." class="pl-10" @keyup.enter="applyFilters" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Meter Model</TableHead>
+                <TableHead>Meters Using</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead class="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-if="props.configFiles.data.length === 0">
+                <TableCell colspan="4" class="text-center text-muted-foreground">No configuration files found</TableCell>
+              </TableRow>
+              <TableRow v-for="config in props.configFiles.data" :key="config.id">
+                <TableCell class="font-medium">{{ config.meter_model }}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{{ config.meters_count }} meters</Badge>
+                </TableCell>
+                <TableCell>{{ new Date(config.created_at).toLocaleDateString() }}</TableCell>
+                <TableCell class="text-right">
+                  <div class="flex justify-end gap-2">
+                    <Button variant="ghost" size="sm" @click="router.visit(configFiles.show({ configFile: config.id }).url)">
+                      <Eye class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" @click="router.visit(configFiles.edit({ configFile: config.id }).url)">
+                      <Pencil class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" @click="router.delete(configFiles.destroy({ configFile: config.id }).url)">
+                      <Trash2 class="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+
+          <div v-if="props.configFiles.last_page > 1" class="flex items-center justify-center gap-2 mt-4">
+            <Button v-for="link in props.configFiles.links" :key="link.label" :variant="link.active ? 'default' : 'outline'" size="sm" :disabled="!link.url" @click="link.url && router.visit(link.url)" v-html="link.label" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </AppLayout>
+</template>
