@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('division_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('primary_building_id')->nullable()->constrained('buildings')->nullOnDelete();
+            $table->unsignedBigInteger('primary_building_id')->nullable();
             $table->string('code')->unique();
             $table->timestamp('last_log_update')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
@@ -25,6 +25,7 @@ return new class extends Migration
             
             $table->index('code');
             $table->index('last_log_update');
+            $table->index('primary_building_id');
         });
     }
 
