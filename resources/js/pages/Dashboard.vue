@@ -4,6 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import SimpleLineChart from '@/components/SimpleLineChart.vue'
 import * as sites from '@/actions/App/Http/Controllers/SiteController'
 import * as gateways from '@/actions/App/Http/Controllers/GatewayController'
 import * as meters from '@/actions/App/Http/Controllers/MeterController'
@@ -22,8 +23,10 @@ import {
   Activity,
   TrendingUp,
   AlertCircle,
-  Clock
+  Clock,
+  BarChart3
 } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 interface Stats {
   sites: { total: number; online: number; offline: number }
@@ -43,12 +46,32 @@ interface RecentActivity {
   url: string
 }
 
+interface TrendData {
+  date: string
+  power: number
+  meters: number
+}
+
+interface TopMeter {
+  name: string
+  consumption: number
+}
+
 interface Props {
   stats: Stats
   recentActivity: RecentActivity[]
+  consumptionTrend: TrendData[]
+  topMeters: TopMeter[]
 }
 
 const props = defineProps<Props>()
+
+const chartData = computed(() => {
+  return props.consumptionTrend.map(item => ({
+    label: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    value: item.power,
+  }))
+})
 
 function getActivityIcon(type: string) {
   switch (type) {
@@ -178,6 +201,24 @@ function formatTimeAgo(timestamp: string) {
         </Card>
       </div>
 
+      <!-- Energy Consumption Trend -->
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            <BarChart3 class="h-5 w-5" />
+            Energy Consumption Trend
+          </CardTitle>
+          <CardDescription>Average power consumption over the last 30 days (kW)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div v-if="chartData.length === 0" class="text-center py-8 text-muted-foreground">
+            <Activity class="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p>No consumption data available</p>
+          </div>
+          <SimpleLineChart v-else :data="chartData" :height="250" color="#3b82f6" />
+        </CardContent>
+      </Card>
+
       <div class="grid gap-6 lg:grid-cols-2">
         <!-- Quick Actions -->
         <Card>
@@ -229,6 +270,44 @@ function formatTimeAgo(timestamp: string) {
                   Add New User
                 </Button>
               </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Top Consuming Meters -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="flex items-center gap-2">
+              <TrendingUp class="h-5 w-5" />
+              Top Consuming Meters
+            </CardTitle>
+            <CardDescription>Highest energy consumption (last 7 days)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div v-if="props.topMeters.length === 0" class="text-center py-8 text-muted-foreground">
+              <Zap class="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No meter data available</p>
+            </div>
+            <div v-else class="space-y-3">
+              <div 
+                v-for="(meter, index) in props.topMeters" 
+                :key="meter.name"
+                class="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+                    {{ index + 1 }}
+                  </div>
+                  <div>
+                    <div class="font-medium">{{ meter.name }}</div>
+                    <div class="text-xs text-muted-foreground">Energy meter</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold">{{ meter.consumption }}</div>
+                  <div class="text-xs text-muted-foreground">kWh</div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
