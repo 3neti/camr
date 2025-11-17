@@ -12,7 +12,7 @@ class GatewayController extends Controller
 {
     public function index(Request $request): Response
     {
-        $gateways = Gateway::with(['site', 'location'])
+        $query = Gateway::with(['site', 'location'])
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('serial_number', 'like', "%{$search}%")
@@ -29,15 +29,24 @@ class GatewayController extends Controller
                 } elseif ($status === 'offline') {
                     $query->offline();
                 }
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            });
+
+        // Sorting
+        $sortColumn = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortColumn, ['serial_number', 'mac_address', 'ip_address', 'status', 'created_at'])) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest();
+        }
+
+        $gateways = $query->paginate(15)->withQueryString();
 
         return Inertia::render('gateways/Index', [
             'gateways' => $gateways,
             'sites' => Site::all(['id', 'code']),
-            'filters' => $request->only(['search', 'site_id', 'status']),
+            'filters' => $request->only(['search', 'site_id', 'status', 'sort', 'direction']),
         ]);
     }
 

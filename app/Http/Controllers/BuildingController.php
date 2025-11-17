@@ -25,12 +25,22 @@ class BuildingController extends Controller
             $query->where('site_id', $request->site_id);
         }
 
-        $buildings = $query->latest()->paginate(15)->withQueryString();
+        // Sorting
+        $sortColumn = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortColumn, ['code', 'description', 'created_at'])) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest();
+        }
+
+        $buildings = $query->paginate(15)->withQueryString();
 
         return Inertia::render('buildings/Index', [
             'buildings' => $buildings,
             'sites' => Site::orderBy('code')->get(['id', 'code']),
-            'filters' => $request->only(['search', 'site_id']),
+            'filters' => $request->only(['search', 'site_id', 'sort', 'direction']),
         ]);
     }
 

@@ -12,7 +12,7 @@ class MeterController extends Controller
 {
     public function index(Request $request): Response
     {
-        $meters = Meter::with(['gateway.site', 'location'])
+        $query = Meter::with(['gateway.site', 'location'])
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -38,16 +38,25 @@ class MeterController extends Controller
                 } elseif ($status === 'inactive') {
                     $query->inactive();
                 }
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            });
+
+        // Sorting
+        $sortColumn = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortColumn, ['name', 'type', 'brand', 'customer_name', 'status', 'created_at'])) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest();
+        }
+
+        $meters = $query->paginate(15)->withQueryString();
 
         return Inertia::render('meters/Index', [
             'meters' => $meters,
             'gateways' => Gateway::with('site')->get(['id', 'serial_number', 'site_id']),
             'sites' => Site::all(['id', 'code']),
-            'filters' => $request->only(['search', 'gateway_id', 'site_id', 'type', 'brand', 'status']),
+            'filters' => $request->only(['search', 'gateway_id', 'site_id', 'type', 'brand', 'status', 'sort', 'direction']),
         ]);
     }
 

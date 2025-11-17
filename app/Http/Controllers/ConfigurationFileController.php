@@ -17,11 +17,21 @@ class ConfigurationFileController extends Controller
             $query->where('meter_model', 'like', "%{$request->search}%");
         }
 
-        $configFiles = $query->latest()->paginate(15)->withQueryString();
+        // Sorting
+        $sortColumn = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortColumn, ['meter_model', 'created_at'])) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest();
+        }
+
+        $configFiles = $query->paginate(15)->withQueryString();
 
         return Inertia::render('config-files/Index', [
             'configFiles' => $configFiles,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'sort', 'direction']),
         ]);
     }
 

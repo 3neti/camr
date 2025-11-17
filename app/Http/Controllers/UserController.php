@@ -44,11 +44,21 @@ class UserController extends Controller
             }
         }
 
-        $users = $query->latest()->paginate(15)->withQueryString();
+        // Sorting
+        $sortColumn = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortColumn, ['name', 'email', 'job_title', 'role', 'created_at'])) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest();
+        }
+
+        $users = $query->paginate(15)->withQueryString();
 
         return Inertia::render('users/Index', [
             'users' => $users,
-            'filters' => $request->only(['search', 'role', 'status']),
+            'filters' => $request->only(['search', 'role', 'status', 'sort', 'direction']),
         ]);
     }
 
