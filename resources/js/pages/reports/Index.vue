@@ -9,6 +9,7 @@ import { BarChart3, Download, Zap, Activity, TrendingUp, Building2 } from 'lucid
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import axios from 'axios'
+import DateRangePicker from '@/components/DateRangePicker.vue'
 
 interface Props {
   sites: Array<{
@@ -39,7 +40,9 @@ const props = defineProps<Props>()
 const selectedSite = ref<string>('all')
 const selectedMeter = ref<string>('')
 const exportFormat = ref<string>('csv')
+const interval = ref<'hour' | 'day'>('hour')
 const isExporting = ref(false)
+const selectedRange = ref<{ start: Date; end: Date } | null>(null)
 
 async function exportData() {
   if (!selectedMeter.value) {
@@ -47,25 +50,49 @@ async function exportData() {
     return
   }
   
+  // Determine date range
+  const now = new Date()
+  const defaultStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const start = selectedRange.value?.start || defaultStart
+  const end = selectedRange.value?.end || now
+
+  const formatDate = (d: Date) => {
+    const tzOffsetMs = d.getTimezoneOffset() * 60000
+    return new Date(d.getTime() - tzOffsetMs).toISOString().slice(0, 10)
+  }
+
   isExporting.value = true
   try {
     const response = await axios.get(`/api/meters/${selectedMeter.value}/power-data`, {
-      params: { days: 30, interval: 'hour' },
-      responseType: 'blob'
+      params: { 
+        start_date: formatDate(start),
+        end_date: formatDate(end),
+        interval: interval.value,
+      },
     })
-    
-    // Convert JSON to CSV
-    const data = JSON.parse(await response.data.text())
-    const csvContent = convertToCSV(data.data)
-    
-    // Download file
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `meter-${selectedMeter.value}-data.csv`
-    a.click()
-    window.URL.revokeObjectURL(url)
+
+    // Prepare file based on format
+    if (exportFormat.value === 'json') {
+      const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `meter-${selectedMeter.value}-data.json`
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } else if (exportFormat.value === 'xlsx') {
+      alert('Excel (XLSX) export not yet supported. Please use CSV or JSON.')
+      return
+    } else {
+      const csvContent = convertToCSV(response.data.data)
+      const blob = new Blob([csvContent], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `meter-${selectedMeter.value}-data.csv`
+      a.click()
+      window.URL.revokeObjectURL(url)
+    }
   } catch (error) {
     console.error('Export error:', error)
     alert('Error exporting data')
@@ -164,7 +191,8 @@ function updateFilteredMeters(siteCode: string) {
           <CardDescription>Download historical energy consumption data</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
-          <div class="grid gap-4 md:grid-cols-3">
+          <DateRangePicker v-model="selectedRange" />
+          <div class="grid gap-4 md:grid-cols-4">
             <div class="space-y-2">
               <label class="text-sm font-medium">Site</label>
               <Select :model-value="selectedSite" @update:model-value="updateFilteredMeters">
@@ -204,6 +232,19 @@ function updateFilteredMeters(siteCode: string) {
                   <SelectItem value="csv">CSV</SelectItem>
                   <SelectItem value="json">JSON</SelectItem>
                   <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-sm font-medium">Interval</label>
+              <Select v-model="interval">
+                <SelectTrigger>
+                  <SelectValue placeholder="Select interval" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hour">Hourly</SelectItem>
+                  <SelectItem value="day">Daily</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -17,17 +17,27 @@ class ReportsController extends Controller
     public function meterPowerData(Request $request, Meter $meter)
     {
         $request->validate([
-            'days' => 'integer|min:1|max:30',
+            'days' => 'integer|min:1|max:365',
             'interval' => 'in:hour,day',
+            'start_date' => 'date',
+            'end_date' => 'date|after_or_equal:start_date',
         ]);
 
-        $days = $request->integer('days', 7);
-        $interval = $request->input('interval', 'hour');
+        // Support custom date range or days parameter
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $startDate = Carbon::parse($request->input('start_date'));
+            $endDate = Carbon::parse($request->input('end_date'));
+        } else {
+            $days = $request->integer('days', 7);
+            $startDate = Carbon::now()->subDays($days);
+            $endDate = Carbon::now();
+        }
         
-        $startDate = Carbon::now()->subDays($days);
+        $interval = $request->input('interval', 'hour');
         
         $query = MeterData::where('meter_name', $meter->name)
             ->where('reading_datetime', '>=', $startDate)
+            ->where('reading_datetime', '<=', $endDate)
             ->orderBy('reading_datetime');
             
         if ($interval === 'day') {
@@ -69,14 +79,23 @@ class ReportsController extends Controller
     public function meterLoadProfile(Request $request, Meter $meter)
     {
         $request->validate([
-            'days' => 'integer|min:1|max:7',
+            'days' => 'integer|min:1|max:31',
+            'start_date' => 'date',
+            'end_date' => 'date|after_or_equal:start_date',
         ]);
 
-        $days = $request->integer('days', 1);
-        $startDate = Carbon::now()->subDays($days);
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $startDate = Carbon::parse($request->input('start_date'));
+            $endDate = Carbon::parse($request->input('end_date'));
+        } else {
+            $days = $request->integer('days', 1);
+            $startDate = Carbon::now()->subDays($days);
+            $endDate = Carbon::now();
+        }
         
         $data = LoadProfile::where('meter_name', $meter->name)
             ->where('reading_datetime', '>=', $startDate)
+            ->where('reading_datetime', '<=', $endDate)
             ->orderBy('reading_datetime')
             ->get()
             ->map(function ($record) {
@@ -105,19 +124,29 @@ class ReportsController extends Controller
     public function meterEnergySummary(Request $request, Meter $meter)
     {
         $request->validate([
-            'days' => 'integer|min:1|max:30',
+            'days' => 'integer|min:1|max:365',
+            'start_date' => 'date',
+            'end_date' => 'date|after_or_equal:start_date',
         ]);
 
-        $days = $request->integer('days', 30);
-        $startDate = Carbon::now()->subDays($days);
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $startDate = Carbon::parse($request->input('start_date'));
+            $endDate = Carbon::parse($request->input('end_date'));
+        } else {
+            $days = $request->integer('days', 30);
+            $startDate = Carbon::now()->subDays($days);
+            $endDate = Carbon::now();
+        }
         
         $latest = MeterData::where('meter_name', $meter->name)
             ->where('reading_datetime', '>=', $startDate)
+            ->where('reading_datetime', '<=', $endDate)
             ->orderBy('reading_datetime', 'desc')
             ->first();
             
         $oldest = MeterData::where('meter_name', $meter->name)
             ->where('reading_datetime', '>=', $startDate)
+            ->where('reading_datetime', '<=', $endDate)
             ->orderBy('reading_datetime', 'asc')
             ->first();
             
@@ -129,6 +158,7 @@ class ReportsController extends Controller
         
         $dailyAvg = MeterData::where('meter_name', $meter->name)
             ->where('reading_datetime', '>=', $startDate)
+            ->where('reading_datetime', '<=', $endDate)
             ->selectRaw('
                 DATE(reading_datetime) as date,
                 AVG(watt) as avg_power,
