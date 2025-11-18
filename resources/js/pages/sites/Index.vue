@@ -23,12 +23,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import SortableTableHead from '@/components/SortableTableHead.vue'
 import { Plus, Search, Trash2, Eye, Pencil, Download, Building2, MapPin, Radio, Zap } from 'lucide-vue-next'
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
-import { useSiteContext } from '@/composables/useSiteContext'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
@@ -93,24 +92,6 @@ const deleteSite = (site: Site) => {
 
 // Bulk actions
 const bulk = useBulkActions(props.sites.data)
-
-// Site context - restore selection from session
-const { selectedSiteId } = useSiteContext()
-
-// Restore selection from session on mount
-onMounted(() => {
-  if (selectedSiteId.value) {
-    bulk.toggleSelection(selectedSiteId.value)
-  }
-})
-
-// Watch for changes to selectedSiteId (when coming from other pages)
-watch(selectedSiteId, (newSiteId) => {
-  bulk.clearSelection()
-  if (newSiteId) {
-    bulk.toggleSelection(newSiteId)
-  }
-})
 
 function bulkDeleteSites() {
   if (bulk.selectedIds.value.length === 0) return
