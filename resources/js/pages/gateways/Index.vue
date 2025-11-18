@@ -35,6 +35,7 @@ import { debounce } from 'lodash-es'
 import { useBulkActions } from '@/composables/useBulkActions'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import { useSiteContext } from '@/composables/useSiteContext'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
@@ -77,8 +78,16 @@ interface Props {
 
 const props = defineProps<Props>()
 
+// Site context - use session-stored site if available
+const { selectedSiteId } = useSiteContext()
+
 const search = ref(props.filters.search || '')
-const siteId = ref(props.filters.site_id?.toString() || 'all')
+// Initialize from session context, fallback to filter, then 'all'
+const siteId = ref(
+  (selectedSiteId.value?.toString()) || 
+  (props.filters.site_id?.toString()) || 
+  'all'
+)
 const status = ref(props.filters.status || 'all')
 
 const debouncedSearch = debounce(() => {
@@ -86,7 +95,8 @@ const debouncedSearch = debounce(() => {
     gateways.index().url,
     {
       search: search.value,
-      site_id: siteId.value && siteId.value !== 'all' ? siteId.value : undefined,
+      // Pass 'all' to clear session, or the actual site_id to set it
+      site_id: siteId.value === 'all' ? 'all' : siteId.value,
       status: status.value && status.value !== 'all' ? status.value : undefined,
     },
     {

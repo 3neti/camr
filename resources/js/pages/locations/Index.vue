@@ -13,6 +13,7 @@ import * as locations from '@/actions/App/Http/Controllers/LocationController'
 import { Plus, Search, MapPin, Pencil, Trash2, Eye, Download } from 'lucide-vue-next'
 import { useSortable } from '@/composables/useSortable'
 import { useExport } from '@/composables/useExport'
+import { useSiteContext } from '@/composables/useSiteContext'
 import FilterPresets from '@/components/FilterPresets.vue'
 import ColumnPreferences from '@/components/ColumnPreferences.vue'
 import { useColumnPreferences } from '@/composables/useColumnPreferences'
@@ -38,8 +39,17 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// Site context - use session-stored site if available
+const { selectedSiteId } = useSiteContext()
+
 const search = ref(props.filters.search || '')
-const siteId = ref(props.filters.site_id || 'all')
+// Initialize from session context, fallback to filter, then 'all'
+const siteId = ref(
+  (selectedSiteId.value?.toString()) || 
+  (props.filters.site_id) || 
+  'all'
+)
 const buildingId = ref(props.filters.building_id || 'all')
 
 // Filter buildings based on selected site
@@ -51,7 +61,8 @@ const filteredBuildings = computed(() => {
 function applyFilters() {
   router.get(locations.index().url, {
     search: search.value || undefined,
-    site_id: siteId.value !== 'all' ? siteId.value : undefined,
+    // Pass 'all' to clear session, or the actual site_id to set it
+    site_id: siteId.value === 'all' ? 'all' : siteId.value,
     building_id: buildingId.value !== 'all' ? buildingId.value : undefined,
   }, { preserveState: true, preserveScroll: true })
 }

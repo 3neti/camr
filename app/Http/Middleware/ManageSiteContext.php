@@ -21,12 +21,14 @@ class ManageSiteContext
     {
         // If user explicitly provides site_id in request, update session
         if ($request->has('site_id')) {
-            if ($request->site_id === 'clear' || $request->site_id === null) {
-                // Clear the selected site context
+            $siteId = $request->input('site_id');
+            
+            // Clear context if site_id is 'clear', null, empty string, or 'all'
+            if (in_array($siteId, ['clear', null, '', 'all'], true)) {
                 $request->session()->forget('selected_site_id');
             } else {
-                // Store the selected site ID in session
-                $request->session()->put('selected_site_id', $request->site_id);
+                // Store the selected site ID in session (convert to int)
+                $request->session()->put('selected_site_id', (int) $siteId);
             }
         }
 
@@ -36,9 +38,6 @@ class ManageSiteContext
             // This makes it available to controllers without them needing to check session
             $request->merge(['site_id' => $request->session()->get('selected_site_id')]);
         }
-
-        // Share selected site ID with all views
-        view()->share('selectedSiteId', $request->session()->get('selected_site_id'));
 
         return $next($request);
     }
