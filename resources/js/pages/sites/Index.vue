@@ -129,30 +129,26 @@ function saveSelectedContext() {
 // Navigate to related pages with selected sites as filter
 function goToBuildings() {
   saveSelectedContext()
-  router.visit('/buildings', {
-    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
-  })
+  const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
+  router.get('/buildings', siteId ? { site_id: siteId } : {})
 }
 
 function goToLocations() {
   saveSelectedContext()
-  router.visit('/locations', {
-    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
-  })
+  const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
+  router.get('/locations', siteId ? { site_id: siteId } : {})
 }
 
 function goToGateways() {
   saveSelectedContext()
-  router.visit('/gateways', {
-    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
-  })
+  const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
+  router.get('/gateways', siteId ? { site_id: siteId } : {})
 }
 
 function goToMeters() {
   saveSelectedContext()
-  router.visit('/meters', {
-    data: { site_id: bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined }
-  })
+  const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
+  router.get('/meters', siteId ? { site_id: siteId } : {})
 }
 
 // Column preferences
