@@ -113,10 +113,16 @@ function handleSort(column: string) {
   sorting.sort(column, { search: search.value || undefined })
 }
 
-// Handle row click to toggle selection
+// Handle row click for single selection (exclusive)
 function handleRowClick(event: MouseEvent, siteId: number) {
   // Don't toggle if clicking on interactive elements (handled by @click.stop on those cells)
-  bulk.toggleSelection(siteId)
+  // For single selection: clear all and select only this one
+  if (bulk.isSelected(siteId)) {
+    bulk.clearSelection()
+  } else {
+    bulk.clearSelection()
+    bulk.toggleSelection(siteId)
+  }
 }
 
 // Navigate to related pages with selected site as filter
@@ -195,7 +201,7 @@ function exportSites() {
               <CardDescription>
                 {{ props.sites.total }} total sites
                 <span v-if="bulk.hasSelection.value" class="ml-2">
-                  · <strong>{{ bulk.selectedIds.value.length }}</strong> selected
+                  · <strong>Site selected</strong>
                 </span>
               </CardDescription>
             </div>
@@ -212,7 +218,7 @@ function exportSites() {
             <div class="flex items-center gap-2">
               <template v-if="bulk.hasSelection.value">
                 <div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md">
-                  <span class="text-sm font-medium">Selected ({{ bulk.selectedIds.value.length }})</span>
+                  <span class="text-sm font-medium">Site selected</span>
                   <div class="h-4 w-px bg-border" />
                   <Button variant="ghost" size="sm" @click="goToBuildings" title="View Buildings">
                     <Building2 class="h-4 w-4" />
@@ -227,9 +233,6 @@ function exportSites() {
                     <Zap class="h-4 w-4" />
                   </Button>
                   <div class="h-4 w-px bg-border" />
-                  <Button variant="ghost" size="sm" @click="bulkDeleteSites" class="text-destructive hover:text-destructive" title="Delete Selected">
-                    <Trash2 class="h-4 w-4" />
-                  </Button>
                   <Button variant="ghost" size="sm" @click="bulk.clearSelection()" title="Clear Selection">
                     <span class="text-xs">Clear</span>
                   </Button>
@@ -258,11 +261,7 @@ function exportSites() {
             <TableHeader>
               <TableRow>
                 <TableHead class="w-12">
-                  <Checkbox 
-                    :checked="bulk.allSelected.value" 
-                    :indeterminate="bulk.someSelected.value"
-                    @update:checked="bulk.allSelected.value = $event" 
-                  />
+                  <!-- Single selection mode - no select all -->
                 </TableHead>
                 <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('company')">Company</TableHead>
