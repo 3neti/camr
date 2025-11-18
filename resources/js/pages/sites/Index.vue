@@ -119,34 +119,24 @@ function handleRowClick(event: MouseEvent, siteId: number) {
   bulk.toggleSelection(siteId)
 }
 
-// Save selected site IDs to sessionStorage for context filtering
-function saveSelectedContext() {
-  if (bulk.selectedIds.value.length > 0) {
-    sessionStorage.setItem('selectedSiteIds', JSON.stringify(bulk.selectedIds.value))
-  }
-}
-
-// Navigate to related pages with selected sites as filter
+// Navigate to related pages with selected site as filter
+// The site_id is stored in Laravel session by ManageSiteContext middleware
 function goToBuildings() {
-  saveSelectedContext()
   const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
   router.get('/buildings', siteId ? { site_id: siteId } : {})
 }
 
 function goToLocations() {
-  saveSelectedContext()
   const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
   router.get('/locations', siteId ? { site_id: siteId } : {})
 }
 
 function goToGateways() {
-  saveSelectedContext()
   const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
   router.get('/gateways', siteId ? { site_id: siteId } : {})
 }
 
 function goToMeters() {
-  saveSelectedContext()
   const siteId = bulk.selectedIds.value.length === 1 ? bulk.selectedIds.value[0] : undefined
   router.get('/meters', siteId ? { site_id: siteId } : {})
 }
