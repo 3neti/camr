@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import SortableTableHead from '@/components/SortableTableHead.vue'
 import { Plus, Search, Trash2, Eye, Pencil, Download, Building2, MapPin, Radio, Zap } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
@@ -217,26 +218,63 @@ function exportSites() {
           <div class="mt-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <template v-if="bulk.hasSelection.value">
-                <div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md">
-                  <span class="text-sm font-medium">Site selected</span>
-                  <div class="h-4 w-px bg-border" />
-                  <Button variant="ghost" size="sm" @click="goToBuildings" title="View Buildings">
-                    <Building2 class="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" @click="goToLocations" title="View Locations">
-                    <MapPin class="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" @click="goToGateways" title="View Gateways">
-                    <Radio class="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" @click="goToMeters" title="View Meters">
-                    <Zap class="h-4 w-4" />
-                  </Button>
-                  <div class="h-4 w-px bg-border" />
-                  <Button variant="ghost" size="sm" @click="bulk.clearSelection()" title="Clear Selection">
-                    <span class="text-xs">Clear</span>
-                  </Button>
-                </div>
+                <TooltipProvider>
+                  <div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md">
+                    <span class="text-sm font-medium">Site selected</span>
+                    <div class="h-4 w-px bg-border" />
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button variant="ghost" size="sm" @click="goToBuildings">
+                          <Building2 class="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Buildings</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button variant="ghost" size="sm" @click="goToLocations">
+                          <MapPin class="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Locations</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button variant="ghost" size="sm" @click="goToGateways">
+                          <Radio class="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Gateways</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button variant="ghost" size="sm" @click="goToMeters">
+                          <Zap class="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Meters</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <div class="h-4 w-px bg-border" />
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button variant="ghost" size="sm" @click="bulk.clearSelection()">
+                          <span class="text-xs">Clear</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Clear Selection</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TooltipProvider>
               </template>
               <Button variant="outline" size="sm" @click="exportSites">
                 <Download class="h-4 w-4 mr-2" />
