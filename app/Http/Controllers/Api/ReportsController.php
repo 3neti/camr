@@ -52,17 +52,31 @@ class ReportsController extends Controller
             ->groupBy('date')
             ->get();
         } else {
-            // Hourly data
-            $data = $query->get()->map(function ($record) {
-                return [
-                    'datetime' => $record->reading_datetime->toIso8601String(),
-                    'power' => $record->watt,
-                    'voltage' => ($record->vrms_a + $record->vrms_b + $record->vrms_c) / 3,
-                    'current' => ($record->irms_a + $record->irms_b + $record->irms_c) / 3,
-                    'power_factor' => $record->power_factor,
-                    'energy_delivered' => $record->wh_delivered,
+            // Get all readings and calculate power from energy deltas
+            $readings = $query->get();
+            $data = [];
+            
+            for ($i = 0; $i < $readings->count(); $i++) {
+                $current = $readings[$i];
+                $previous = $i > 0 ? $readings[$i - 1] : null;
+                
+                // Calculate power from energy difference if we have previous reading
+                $power = null;
+                if ($previous && $current->wh_total && $previous->wh_total) {
+                    $energyDelta = $current->wh_total - $previous->wh_total; // Wh
+                    $timeDelta = $previous->reading_datetime->diffInHours($current->reading_datetime, true);
+                    $power = $timeDelta > 0 ? ($energyDelta / $timeDelta) : 0; // W (Wh/h = W)
+                }
+                
+                $data[] = [
+                    'datetime' => $current->reading_datetime->toIso8601String(),
+                    'power' => $power ?? $current->watt ?? 0,
+                    'energy_total' => $current->wh_total,
+                    'voltage' => (($current->vrms_a ?? 0) + ($current->vrms_b ?? 0) + ($current->vrms_c ?? 0)) / 3,
+                    'current' => (($current->irms_a ?? 0) + ($current->irms_b ?? 0) + ($current->irms_c ?? 0)) / 3,
+                    'power_factor' => $current->power_factor,
                 ];
-            });
+            }
         }
         
         return response()->json([
@@ -167,15 +181,29 @@ class ReportsController extends Controller
             ->groupBy('date')
             ->get();
         
+        // Calculate consumption from wh_total (cumulative energy)
+        $totalConsumed = ($latest->wh_total ?? 0) - ($oldest->wh_total ?? 0);
+        
+        // Calculate average power from energy difference
+        $hoursElapsed = $oldest->reading_datetime->diffInHours($latest->reading_datetime);
+        $avgPower = $hoursElapsed > 0 ? ($totalConsumed / $hoursElapsed) : 0;
+        
+        // Get peak power from max demand fields (if available)
+        $peakPower = max(
+            $latest->max_del_kw_demand ?? 0,
+            $latest->max_rec_kw_demand ?? 0
+        ) * 1000; // Convert kW to W
+        
         return response()->json([
             'meter' => $meter->name,
-            'period_days' => $days,
-            'total_delivered' => $latest->wh_delivered - $oldest->wh_delivered,
-            'total_received' => $latest->wh_received - $oldest->wh_received,
-            'net_consumption' => ($latest->wh_delivered - $oldest->wh_delivered) - ($latest->wh_received - $oldest->wh_received),
-            'avg_power' => $dailyAvg->avg('avg_power'),
-            'peak_power' => $dailyAvg->max('peak_power'),
-            'daily_breakdown' => $dailyAvg,
+            'period_days' => $days ?? ($oldest->reading_datetime->diffInDays($latest->reading_datetime)),
+            'total_delivered' => $totalConsumed, // Total energy consumed
+            'total_received' => ($latest->wh_received ?? 0) - ($oldest->wh_received ?? 0),
+            'net_consumption' => $totalConsumed,
+            'avg_power' => $avgPower,
+            'peak_power' => $peakPower,
+            'period_start' => $oldest->reading_datetime->toIso8601String(),
+            'period_end' => $latest->reading_datetime->toIso8601String(),
         ]);
     }
 

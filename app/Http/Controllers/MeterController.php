@@ -33,10 +33,11 @@ class MeterController extends Controller
                 $query->where('brand', $brand);
             })
             ->when($request->status, function ($query, $status) {
+                $status = strtolower($status);
                 if ($status === 'active') {
-                    $query->active();
+                    $query->where('status', 'Active');
                 } elseif ($status === 'inactive') {
-                    $query->inactive();
+                    $query->where('status', 'Inactive');
                 }
             });
 
@@ -89,8 +90,8 @@ class MeterController extends Controller
             'gateway.site',
             'location',
             'building',
-            'meterData' => fn ($q) => $q->latest()->limit(10),
-            'loadProfiles' => fn ($q) => $q->latest()->limit(5),
+            'meterData' => fn ($q) => $q->latest('reading_datetime')->limit(10),
+            'loadProfiles' => fn ($q) => $q->latest('reading_datetime')->limit(5),
         ]);
 
         return Inertia::render('meters/Show', [

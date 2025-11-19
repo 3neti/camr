@@ -15,41 +15,29 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('🌱 Starting database seeding...');
 
-        // Seed in proper order based on dependencies
+        // Import LIVE data from legacy SQL dump
         $this->call([
-            // 1. Core data (creates companies, divisions, sites)
-            SiteSeeder::class,
+            // Import all real data from SQL dump
+            // This includes: sites, users, gateways, meters, and meter readings
+            LiveDataSeeder::class,
             
-            // 2. Users (after sites for site assignments)
-            UserSeeder::class,
+            // Import fresh meter readings from CSV files
+            // These contain the most recent data exported from the live system
+            CsvMeterDataSeeder::class,
             
-            // 3. Buildings (depends on sites)
-            BuildingSeeder::class,
-            
-            // 4. Configuration files (independent)
+            // Optional: Configuration files (if not in SQL dump)
             ConfigurationFileSeeder::class,
-            
-            // 5. Locations (depends on sites and buildings)
-            LocationSeeder::class,
-            
-            // 6. Gateways (depends on sites and locations)
-            GatewaySeeder::class,
-            
-            // 7. Meters (depends on gateways, sites, locations, config files)
-            MeterSeeder::class,
-            
-            // 8. Meter data (depends on meters)
-            MeterDataSeeder::class,
-            
-            // 9. Load profiles (depends on meters with has_load_profile=true)
-            LoadProfileSeeder::class,
         ]);
+        
+        $this->command->newLine();
+        $this->command->comment('💡 All data imported from production SQL dump!');
+        $this->command->comment('💡 Fake seeders backed up in: database/seeders/backup_original/');
 
         $this->command->newLine();
         $this->command->info('✅ Database seeding completed successfully!');
         $this->command->newLine();
         $this->command->info('🔑 Login credentials:');
-        $this->command->info('   Admin: admin@example.com / password');
-        $this->command->info('   User:  test@example.com / password');
+        $this->command->info('   Users imported from SQL dump');
+        $this->command->info('   Default password for all users: password');
     }
 }

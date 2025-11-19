@@ -25,12 +25,32 @@ interface Props {
     last_log_update: string | null
     gateway: { serial_number: string; site: { code: string } }
     location: { code: string; description: string } | null
+    meter_data?: Array<{
+      id: number
+      reading_datetime: string
+      watt: number | null
+      wh_total: number | null
+      wh_delivered: number | null
+      [key: string]: any
+    }>
+    load_profiles?: Array<any>
   }
 }
 
 const props = defineProps<Props>()
 
+// Debug mode toggle - set to true to show debug panel
+const DEBUG = false
+
 const getStatusColor = (status: string) => status === 'Online' ? 'bg-green-500' : status === 'Offline' ? 'bg-red-500' : 'bg-gray-500'
+
+// Format power with appropriate unit (W or kW)
+const formatPower = (watts: number) => {
+  if (watts >= 1000) {
+    return { value: (watts / 1000).toFixed(2), unit: 'kW' }
+  }
+  return { value: watts.toFixed(2), unit: 'W' }
+}
 
 // Chart data
 const powerChartData = ref<{ labels: string[]; datasets: any[] }>({ labels: [], datasets: [] })
@@ -139,6 +159,30 @@ onMounted(() => {
   <Head :title="`Meter: ${meter.name}`" />
 
   <AppLayout>
+    <!-- DEBUG OUTPUT -->
+    <div v-if="DEBUG" class="container mx-auto py-6 mb-4">
+      <Card class="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300">
+        <CardHeader>
+          <CardTitle class="text-sm font-mono">🐛 Debug Info</CardTitle>
+        </CardHeader>
+        <CardContent class="text-xs font-mono space-y-2">
+          <div><strong>Meter ID:</strong> {{ meter.id }}</div>
+          <div><strong>Meter Name:</strong> {{ meter.name }}</div>
+          <div><strong>Status:</strong> {{ meter.status }}</div>
+          <div><strong>Status Label:</strong> {{ meter.status_label }}</div>
+          <div><strong>Has meter_data?</strong> {{ meter.meter_data ? 'Yes (' + meter.meter_data.length + ' readings)' : 'No' }}</div>
+          <div v-if="meter.meter_data && meter.meter_data.length > 0">
+            <strong>Latest Reading:</strong>
+            <div class="mt-1 p-2 bg-green-100 dark:bg-green-900/20 rounded">
+              <div>Time: {{ new Date(meter.meter_data[0].reading_datetime).toLocaleString() }}</div>
+              <div>Total Energy: {{ meter.meter_data[0].wh_total?.toFixed(1) || '0' }} Wh ({{ (meter.meter_data[0].wh_total / 1000).toFixed(2) }} kWh)</div>
+              <div>Power: {{ meter.meter_data[0].watt || '0' }} W</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+    
     <div class="container mx-auto py-6 space-y-6">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
@@ -211,8 +255,11 @@ onMounted(() => {
             <Activity class="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">{{ (energySummary.avg_power / 1000).toFixed(2) }} kW</div>
-            <p class="text-xs text-muted-foreground">30-day average</p>
+            <div class="text-2xl font-bold">
+              {{ formatPower(energySummary.avg_power).value }} 
+              <span class="text-base">{{ formatPower(energySummary.avg_power).unit }}</span>
+            </div>
+            <p class="text-xs text-muted-foreground">{{ energySummary.period_days }}-day average</p>
           </CardContent>
         </Card>
         
@@ -222,7 +269,10 @@ onMounted(() => {
             <Zap class="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">{{ (energySummary.peak_power / 1000).toFixed(2) }} kW</div>
+            <div class="text-2xl font-bold">
+              {{ formatPower(Math.abs(energySummary.peak_power)).value }} 
+              <span class="text-base">{{ formatPower(Math.abs(energySummary.peak_power)).unit }}</span>
+            </div>
             <p class="text-xs text-muted-foreground">Maximum recorded</p>
           </CardContent>
         </Card>
@@ -239,8 +289,23 @@ onMounted(() => {
         <TabsContent value="power" class="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Power Consumption (Last {{ selectedDays }} Days)</CardTitle>
-              <CardDescription>Hourly power readings</CardDescription>
+              <div class="flex items-center justify-between">
+                <div>
+                  <CardTitle>Power Consumption (Last {{ selectedDays }} Days)</CardTitle>
+                  <CardDescription>Hourly power readings</CardDescription>
+                </div>
+                <div class="flex gap-2">
+                  <Button 
+                    v-for="days in [1, 7, 14, 30, 60, 90]" 
+                    :key="days"
+                    :variant="selectedDays === days ? 'default' : 'outline'"
+                    size="sm"
+                    @click="selectedDays = days; fetchPowerData()"
+                  >
+                    {{ days }}d
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div v-if="isLoadingPower" class="flex items-center justify-center h-[300px]">
