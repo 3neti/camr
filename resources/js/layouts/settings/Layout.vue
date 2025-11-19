@@ -27,6 +27,10 @@ const sidebarNavItems: NavItem[] = [
         title: 'Appearance',
         href: editAppearance(),
     },
+    {
+        title: 'Data Import',
+        href: '/settings/data-import',
+    },
 ];
 
 const currentPath = typeof window !== undefined ? window.location.pathname : '';

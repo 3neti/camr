@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\DataImportController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
@@ -25,4 +26,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
+    
+    // Data Import
+    Route::get('settings/data-import', [DataImportController::class, 'index'])->name('data-import.index');
+    Route::post('settings/data-import/upload', [DataImportController::class, 'upload'])->name('data-import.upload');
+    Route::post('settings/data-import/import', [DataImportController::class, 'import'])->name('data-import.import');
+    Route::post('settings/data-import/progress', [DataImportController::class, 'progress'])->name('data-import.progress');
+    Route::post('settings/data-import/{importJob}/cancel', [DataImportController::class, 'cancel'])->name('data-import.cancel');
+    Route::delete('settings/data-import/{importJob}', [DataImportController::class, 'destroy'])->name('data-import.destroy');
 });
