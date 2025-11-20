@@ -11,7 +11,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, analytics } from '@/routes';
 import * as sites from '@/actions/App/Http/Controllers/SiteController';
 import * as buildings from '@/actions/App/Http/Controllers/BuildingController';
 import * as locations from '@/actions/App/Http/Controllers/LocationController';
@@ -22,7 +22,7 @@ import * as reports from '@/actions/App/Http/Controllers/ReportsController';
 import * as users from '@/actions/App/Http/Controllers/UserController';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode, TrendingUp } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -30,6 +30,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Analytics',
+        href: analytics(),
+        icon: TrendingUp,
     },
     {
         title: 'Sites',

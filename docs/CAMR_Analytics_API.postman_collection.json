@@ -1,0 +1,506 @@
+{
+  "info": {
+    "name": "CAMR Analytics API",
+    "description": "Comprehensive analytics endpoints for meter data visualization and reporting. Base URL: http://camr.test/api/analytics",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "camr-analytics-api-v1",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://camr.test/api/analytics",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Real-time Power",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/realtime-power",
+          "host": ["{{baseUrl}}"],
+          "path": ["realtime-power"],
+          "query": [
+            {
+              "key": "site_id",
+              "value": "1",
+              "description": "Filter by specific site ID",
+              "disabled": true
+            },
+            {
+              "key": "meter_ids[]",
+              "value": "153",
+              "description": "Filter by specific meter ID (repeat for multiple)",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get current power consumption and electrical parameters for active meters. Returns 3-phase voltage, current, power factor, frequency, and online/offline status."
+      },
+      "response": []
+    },
+    {
+      "name": "Energy Trend - Daily",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/energy-trend?period=daily&start_date=2025-11-13&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["energy-trend"],
+          "query": [
+            {
+              "key": "period",
+              "value": "daily",
+              "description": "Aggregation period: hourly, daily, weekly, monthly"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-11-13",
+              "description": "Start date (YYYY-MM-DD)"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20",
+              "description": "End date (YYYY-MM-DD)"
+            },
+            {
+              "key": "site_id",
+              "value": "1",
+              "description": "Filter by specific site ID",
+              "disabled": true
+            },
+            {
+              "key": "meter_ids[]",
+              "value": "153",
+              "description": "Filter by specific meter ID",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get energy consumption trends aggregated by day. Returns total energy (kWh), average power (kW), and peak power for each period."
+      },
+      "response": []
+    },
+    {
+      "name": "Energy Trend - Hourly",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/energy-trend?period=hourly&start_date=2025-11-20&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["energy-trend"],
+          "query": [
+            {
+              "key": "period",
+              "value": "hourly",
+              "description": "Aggregation period"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-11-20",
+              "description": "Start date (YYYY-MM-DD)"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20",
+              "description": "End date (YYYY-MM-DD)"
+            },
+            {
+              "key": "site_id",
+              "value": "1",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get energy consumption trends aggregated by hour. Ideal for intraday analysis."
+      },
+      "response": []
+    },
+    {
+      "name": "Energy Trend - Weekly",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/energy-trend?period=weekly&start_date=2025-10-20&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["energy-trend"],
+          "query": [
+            {
+              "key": "period",
+              "value": "weekly"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-10-20"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20"
+            }
+          ]
+        },
+        "description": "Get energy consumption trends aggregated by week."
+      },
+      "response": []
+    },
+    {
+      "name": "Energy Trend - Monthly",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/energy-trend?period=monthly&start_date=2025-01-01&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["energy-trend"],
+          "query": [
+            {
+              "key": "period",
+              "value": "monthly"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-01-01"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20"
+            }
+          ]
+        },
+        "description": "Get energy consumption trends aggregated by month. Ideal for year-over-year comparison."
+      },
+      "response": []
+    },
+    {
+      "name": "Power Quality",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/power-quality?start_date=2025-11-19&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["power-quality"],
+          "query": [
+            {
+              "key": "start_date",
+              "value": "2025-11-19",
+              "description": "Start date (YYYY-MM-DD)"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20",
+              "description": "End date (YYYY-MM-DD)"
+            },
+            {
+              "key": "site_id",
+              "value": "1",
+              "description": "Filter by specific site ID",
+              "disabled": true
+            },
+            {
+              "key": "meter_ids[]",
+              "value": "153",
+              "description": "Filter by specific meter ID",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get detailed power quality metrics including voltage, current, power factor by phase, frequency statistics, and low power factor percentage."
+      },
+      "response": []
+    },
+    {
+      "name": "Demand Analysis",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/demand-analysis?start_date=2025-11-01&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["demand-analysis"],
+          "query": [
+            {
+              "key": "start_date",
+              "value": "2025-11-01",
+              "description": "Start date (YYYY-MM-DD)"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20",
+              "description": "End date (YYYY-MM-DD)"
+            },
+            {
+              "key": "site_id",
+              "value": "1",
+              "description": "Filter by specific site ID",
+              "disabled": true
+            },
+            {
+              "key": "meter_ids[]",
+              "value": "153",
+              "description": "Filter by specific meter ID",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get maximum demand tracking and peak analysis. Returns peak kW/kVAR demand with daily breakdown."
+      },
+      "response": []
+    },
+    {
+      "name": "Site Aggregation - By Site",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/site-aggregation?group_by=site&start_date=2025-11-19&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["site-aggregation"],
+          "query": [
+            {
+              "key": "group_by",
+              "value": "site",
+              "description": "Grouping level: site, building, or location"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-11-19",
+              "description": "Start date (YYYY-MM-DD)"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20",
+              "description": "End date (YYYY-MM-DD)"
+            }
+          ]
+        },
+        "description": "Get energy consumption aggregated and grouped by site. Returns total energy, average/max power, and meter count per site."
+      },
+      "response": []
+    },
+    {
+      "name": "Site Aggregation - By Building",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/site-aggregation?group_by=building&start_date=2025-11-01&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["site-aggregation"],
+          "query": [
+            {
+              "key": "group_by",
+              "value": "building",
+              "description": "Grouping level"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-11-01"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20"
+            }
+          ]
+        },
+        "description": "Get energy consumption aggregated and grouped by building."
+      },
+      "response": []
+    },
+    {
+      "name": "Site Aggregation - By Location",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/site-aggregation?group_by=location&start_date=2025-11-19&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["site-aggregation"],
+          "query": [
+            {
+              "key": "group_by",
+              "value": "location",
+              "description": "Grouping level"
+            },
+            {
+              "key": "start_date",
+              "value": "2025-11-19"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20"
+            }
+          ]
+        },
+        "description": "Get energy consumption aggregated and grouped by location."
+      },
+      "response": []
+    },
+    {
+      "name": "Top Consumers - Default (10)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/top-consumers?start_date=2025-11-19&end_date=2025-11-20",
+          "host": ["{{baseUrl}}"],
+          "path": ["top-consumers"],
+          "query": [
+            {
+              "key": "start_date",
+              "value": "2025-11-19",
+              "description": "Start date (YYYY-MM-DD)"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20",
+              "description": "End date (YYYY-MM-DD)"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of results (1-100, default: 10)",
+              "disabled": true
+            },
+            {
+              "key": "site_id",
+              "value": "1",
+              "description": "Filter by specific site ID",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get ranked list of top 10 energy consuming meters (default limit)."
+      },
+      "response": []
+    },
+    {
+      "name": "Top Consumers - Custom Limit",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/top-consumers?start_date=2025-11-19&end_date=2025-11-20&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["top-consumers"],
+          "query": [
+            {
+              "key": "start_date",
+              "value": "2025-11-19"
+            },
+            {
+              "key": "end_date",
+              "value": "2025-11-20"
+            },
+            {
+              "key": "limit",
+              "value": "20",
+              "description": "Number of results (1-100)"
+            },
+            {
+              "key": "site_id",
+              "value": "1",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get ranked list of top 20 energy consuming meters with custom limit."
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Note: These APIs require Laravel session authentication",
+          "// Make sure you're authenticated in your browser at http://camr.test",
+          "// before testing these endpoints"
+        ]
+      }
+    }
+  ]
+}

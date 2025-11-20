@@ -14,6 +14,10 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('analytics', function () {
+    return \Inertia\Inertia::render('Analytics');
+})->middleware(['auth'])->name('analytics');
+
 // CAMR Management
 Route::middleware(['auth'])->group(function () {
     Route::resource('sites', \App\Http\Controllers\SiteController::class);
