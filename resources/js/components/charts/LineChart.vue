@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -15,13 +16,51 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 interface Props {
-  data: any
+  labels?: string[]
+  datasets?: any[]
+  data?: any
   options?: any
+  height?: number
+  yAxisLabel?: string
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+// Support both old API (data prop) and new API (labels + datasets)
+const chartData = computed(() => {
+  if (props.data) {
+    return props.data
+  }
+  return {
+    labels: props.labels || [],
+    datasets: props.datasets || []
+  }
+})
+
+const chartOptions = computed(() => {
+  return props.options || {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: !!props.yAxisLabel,
+          text: props.yAxisLabel
+        }
+      }
+    }
+  }
+})
 </script>
 
 <template>
-  <Line :data="data" :options="options" />
+  <div :style="{ height: height ? `${height}px` : '300px' }">
+    <Line :data="chartData" :options="chartOptions" />
+  </div>
 </template>

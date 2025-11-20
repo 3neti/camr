@@ -1,0 +1,837 @@
+{
+  "info": {
+    "name": "CAMR Meter Data Ingest",
+    "description": "Collection for posting real-time meter readings to the CAMR API. Legacy HTTP POST protocol for IoT gateways and smart meters. Base URL: http://camr.test/api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "camr-meter-ingest-api-v1",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://camr.test/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Meter Data - Sample 1 (SMSS - High Power Factor)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "save_to_meter_data",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "location",
+              "value": "SMSS",
+              "type": "text"
+            },
+            {
+              "key": "meter_id",
+              "value": "030011100592",
+              "type": "text"
+            },
+            {
+              "key": "datetime",
+              "value": "{{current_datetime}}",
+              "type": "text"
+            },
+            {
+              "key": "vrms_a",
+              "value": "219.4",
+              "type": "text"
+            },
+            {
+              "key": "vrms_b",
+              "value": "223.6",
+              "type": "text"
+            },
+            {
+              "key": "vrms_c",
+              "value": "224.9",
+              "type": "text"
+            },
+            {
+              "key": "irms_a",
+              "value": "28.7",
+              "type": "text"
+            },
+            {
+              "key": "irms_b",
+              "value": "14.1",
+              "type": "text"
+            },
+            {
+              "key": "irms_c",
+              "value": "22.2",
+              "type": "text"
+            },
+            {
+              "key": "freq",
+              "value": "60.1",
+              "type": "text"
+            },
+            {
+              "key": "pf",
+              "value": "0.98",
+              "type": "text"
+            },
+            {
+              "key": "watt",
+              "value": "13.88",
+              "type": "text"
+            },
+            {
+              "key": "va",
+              "value": "14.09",
+              "type": "text"
+            },
+            {
+              "key": "var",
+              "value": "2.44",
+              "type": "text"
+            },
+            {
+              "key": "wh_rec",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_del",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_net",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_total",
+              "value": "61450.9102",
+              "type": "text"
+            },
+            {
+              "key": "varh_neg",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_pos",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_net",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_total",
+              "value": "13281.0000",
+              "type": "text"
+            },
+            {
+              "key": "vah_total",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "max_rec_kw_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_rec_kw_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_del_kw_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_del_kw_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_pos_kvar_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_pos_kvar_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_neg_kvar_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_neg_kvar_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_a",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_b",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_c",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_a",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_b",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_c",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "soft_rev",
+              "value": "2.10",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/meter-readings/ingest",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "meter-readings",
+            "ingest"
+          ]
+        },
+        "description": "Post meter reading from meter 030011100592 (SMSL). Good power factor (0.98). Power: 13.88 kW, Voltage: ~220V balanced, Current: 29/14/22A. Total energy: 61,450.91 kWh."
+      },
+      "response": []
+    },
+    {
+      "name": "Meter Data - Sample 2 (SMSS - Poor Power Factor)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "save_to_meter_data",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "location",
+              "value": "SMSL",
+              "type": "text"
+            },
+            {
+              "key": "meter_id",
+              "value": "030011100608",
+              "type": "text"
+            },
+            {
+              "key": "datetime",
+              "value": "{{current_datetime}}",
+              "type": "text"
+            },
+            {
+              "key": "vrms_a",
+              "value": "219.0",
+              "type": "text"
+            },
+            {
+              "key": "vrms_b",
+              "value": "223.0",
+              "type": "text"
+            },
+            {
+              "key": "vrms_c",
+              "value": "225.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_a",
+              "value": "17.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_b",
+              "value": "18.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_c",
+              "value": "18.0",
+              "type": "text"
+            },
+            {
+              "key": "freq",
+              "value": "60.0",
+              "type": "text"
+            },
+            {
+              "key": "pf",
+              "value": "0.55",
+              "type": "text",
+              "description": "Poor power factor - needs correction"
+            },
+            {
+              "key": "watt",
+              "value": "6.34",
+              "type": "text"
+            },
+            {
+              "key": "va",
+              "value": "11.52",
+              "type": "text"
+            },
+            {
+              "key": "var",
+              "value": "9.82",
+              "type": "text"
+            },
+            {
+              "key": "wh_rec",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_del",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_net",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_total",
+              "value": "23945.3201",
+              "type": "text"
+            },
+            {
+              "key": "varh_neg",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_pos",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_net",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_total",
+              "value": "32381.0000",
+              "type": "text",
+              "description": "High reactive power indicates poor power factor"
+            },
+            {
+              "key": "vah_total",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "max_rec_kw_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_rec_kw_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_del_kw_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_del_kw_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_pos_kvar_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_pos_kvar_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_neg_kvar_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_neg_kvar_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_a",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_b",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_c",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_a",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_b",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_c",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "soft_rev",
+              "value": "2.10",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/meter-readings/ingest",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "meter-readings",
+            "ingest"
+          ]
+        },
+        "description": "Post meter reading from meter 030011100608 (SMSL). Poor power factor (0.55). Power: 6.34 kW, Voltage: ~220V balanced, Current: 17/18/18A. High reactive power (32,381 kVARh) indicates correction needed."
+      },
+      "response": []
+    },
+    {
+      "name": "Meter Data - Sample 3 (Single Phase)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "save_to_meter_data",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "location",
+              "value": "SMSL",
+              "type": "text"
+            },
+            {
+              "key": "meter_id",
+              "value": "030011100606",
+              "type": "text"
+            },
+            {
+              "key": "datetime",
+              "value": "{{current_datetime}}",
+              "type": "text"
+            },
+            {
+              "key": "vrms_a",
+              "value": "222.0",
+              "type": "text",
+              "description": "Single phase meter on Phase A"
+            },
+            {
+              "key": "vrms_b",
+              "value": "0.0",
+              "type": "text"
+            },
+            {
+              "key": "vrms_c",
+              "value": "0.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_a",
+              "value": "0.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_b",
+              "value": "4.7",
+              "type": "text",
+              "description": "Unusual: current on Phase B but voltage on Phase A"
+            },
+            {
+              "key": "irms_c",
+              "value": "0.0",
+              "type": "text"
+            },
+            {
+              "key": "freq",
+              "value": "60.2",
+              "type": "text"
+            },
+            {
+              "key": "pf",
+              "value": "0.93",
+              "type": "text"
+            },
+            {
+              "key": "watt",
+              "value": "0.99",
+              "type": "text"
+            },
+            {
+              "key": "va",
+              "value": "1.04",
+              "type": "text"
+            },
+            {
+              "key": "var",
+              "value": "-0.20",
+              "type": "text"
+            },
+            {
+              "key": "wh_rec",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_del",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_net",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "wh_total",
+              "value": "30244.4902",
+              "type": "text"
+            },
+            {
+              "key": "varh_neg",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_pos",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_net",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "varh_total",
+              "value": "2.8900",
+              "type": "text"
+            },
+            {
+              "key": "vah_total",
+              "value": "0.0000",
+              "type": "text"
+            },
+            {
+              "key": "max_rec_kw_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_rec_kw_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_del_kw_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_del_kw_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_pos_kvar_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_pos_kvar_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "max_neg_kvar_dmd",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "max_neg_kvar_dmd_time",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_a",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_b",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "v_ph_angle_c",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_a",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_b",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "i_ph_angle_c",
+              "value": "0.000",
+              "type": "text"
+            },
+            {
+              "key": "soft_rev",
+              "value": "2.10",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/meter-readings/ingest",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "meter-readings",
+            "ingest"
+          ]
+        },
+        "description": "Post meter reading from meter 030011100606 (SMSL). Single-phase. Low power consumption (~1 kW). Only Phase A voltage active (222V), low current on Phase B (4.7A). Total energy: 30,244.49 kWh."
+      },
+      "response": []
+    },
+    {
+      "name": "Meter Data - Test (No Save)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "save_to_meter_data",
+              "value": "0",
+              "type": "text",
+              "description": "Set to 0 to test endpoint without saving data"
+            },
+            {
+              "key": "location",
+              "value": "TEST",
+              "type": "text"
+            },
+            {
+              "key": "meter_id",
+              "value": "99999999",
+              "type": "text"
+            },
+            {
+              "key": "datetime",
+              "value": "2025-11-20 10:00:00",
+              "type": "text"
+            },
+            {
+              "key": "vrms_a",
+              "value": "230.0",
+              "type": "text"
+            },
+            {
+              "key": "vrms_b",
+              "value": "230.0",
+              "type": "text"
+            },
+            {
+              "key": "vrms_c",
+              "value": "230.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_a",
+              "value": "10.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_b",
+              "value": "10.0",
+              "type": "text"
+            },
+            {
+              "key": "irms_c",
+              "value": "10.0",
+              "type": "text"
+            },
+            {
+              "key": "freq",
+              "value": "60.0",
+              "type": "text"
+            },
+            {
+              "key": "pf",
+              "value": "1.0",
+              "type": "text"
+            },
+            {
+              "key": "watt",
+              "value": "6.9",
+              "type": "text"
+            },
+            {
+              "key": "va",
+              "value": "6.9",
+              "type": "text"
+            },
+            {
+              "key": "var",
+              "value": "0.0",
+              "type": "text"
+            },
+            {
+              "key": "wh_total",
+              "value": "50000.0000",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/meter-readings/ingest",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "meter-readings",
+            "ingest"
+          ]
+        },
+        "description": "Test endpoint without saving data (save_to_meter_data=0). Returns OK response but skips database insert. Useful for testing connectivity."
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Generate current timestamp in YYYY-MM-DD HH:MM:SS format",
+          "const now = new Date();",
+          "const year = now.getFullYear();",
+          "const month = String(now.getMonth() + 1).padStart(2, '0');",
+          "const day = String(now.getDate()).padStart(2, '0');",
+          "const hours = String(now.getHours()).padStart(2, '0');",
+          "const minutes = String(now.getMinutes()).padStart(2, '0');",
+          "const seconds = String(now.getSeconds()).padStart(2, '0');",
+          "const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;",
+          "pm.environment.set('current_datetime', timestamp);",
+          ""
+        ]
+      }
+    }
+  ]
+}

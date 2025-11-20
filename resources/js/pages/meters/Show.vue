@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, Link } from '@inertiajs/vue3'
 import * as meters from '@/actions/App/Http/Controllers/MeterController'
@@ -66,7 +66,8 @@ async function fetchPowerData() {
   isLoadingPower.value = true
   try {
     const response = await axios.get(`/api/meters/${props.meter.id}/power-data`, {
-      params: { days: selectedDays.value, interval: 'hour' }
+      params: { days: selectedDays.value, interval: 'hour' },
+      signal: abortController.value.signal
     })
     
     const data = response.data.data
@@ -86,8 +87,11 @@ async function fetchPowerData() {
         },
       ],
     }
-  } catch (error) {
-    console.error('Error fetching power data:', error)
+  } catch (error: any) {
+    // Ignore aborted requests
+    if (error.name !== 'CanceledError') {
+      console.error('Error fetching power data:', error)
+    }
   } finally {
     isLoadingPower.value = false
   }
@@ -100,7 +104,8 @@ async function fetchLoadProfile() {
   isLoadingProfile.value = true
   try {
     const response = await axios.get(`/api/meters/${props.meter.id}/load-profile`, {
-      params: { days: 1 }
+      params: { days: 1 },
+      signal: abortController.value.signal
     })
     
     const data = response.data.data
@@ -126,8 +131,11 @@ async function fetchLoadProfile() {
         },
       ],
     }
-  } catch (error) {
-    console.error('Error fetching load profile:', error)
+  } catch (error: any) {
+    // Ignore aborted requests
+    if (error.name !== 'CanceledError') {
+      console.error('Error fetching load profile:', error)
+    }
   } finally {
     isLoadingProfile.value = false
   }
@@ -138,20 +146,32 @@ async function fetchEnergySummary() {
   isLoadingSummary.value = true
   try {
     const response = await axios.get(`/api/meters/${props.meter.id}/energy-summary`, {
-      params: { days: 30 }
+      params: { days: 30 },
+      signal: abortController.value.signal
     })
     energySummary.value = response.data
-  } catch (error) {
-    console.error('Error fetching energy summary:', error)
+  } catch (error: any) {
+    // Ignore aborted requests
+    if (error.name !== 'CanceledError') {
+      console.error('Error fetching energy summary:', error)
+    }
   } finally {
     isLoadingSummary.value = false
   }
 }
 
+const abortController = ref<AbortController>(new AbortController())
+
 onMounted(() => {
+  abortController.value = new AbortController()
   fetchPowerData()
   fetchLoadProfile()
   fetchEnergySummary()
+})
+
+onUnmounted(() => {
+  // Cancel all pending axios requests when component is unmounted
+  abortController.value.abort()
 })
 </script>
 

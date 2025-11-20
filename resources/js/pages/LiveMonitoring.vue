@@ -225,13 +225,13 @@ onUnmounted(() => {
       </div>
 
       <!-- Main Content: Grid + Activity Feed -->
-      <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Meter Grid (2/3 width) -->
-        <div class="lg:col-span-2">
+      <div class="grid xl:grid-cols-4 gap-6">
+        <!-- Meter Grid (3/4 width) -->
+        <div class="xl:col-span-3">
           <MeterGrid :meters="filteredMeters" :loading="loading" />
         </div>
 
-        <!-- Activity Feed (1/3 width) -->
+        <!-- Activity Feed (1/4 width) -->
         <div>
           <ActivityFeed :readings="activityLog" :is-paused="isPaused" />
         </div>
