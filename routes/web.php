@@ -18,6 +18,10 @@ Route::get('analytics', function () {
     return \Inertia\Inertia::render('Analytics');
 })->middleware(['auth'])->name('analytics');
 
+Route::get('live-monitoring', function () {
+    return \Inertia\Inertia::render('LiveMonitoring');
+})->middleware(['auth'])->name('live.monitoring');
+
 // CAMR Management
 Route::middleware(['auth'])->group(function () {
     Route::resource('sites', \App\Http\Controllers\SiteController::class);

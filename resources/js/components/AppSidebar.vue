@@ -37,6 +37,11 @@ const mainNavItems: NavItem[] = [
         icon: TrendingUp,
     },
     {
+        title: 'Live Monitoring',
+        href: '/live-monitoring',
+        icon: Radio,
+    },
+    {
         title: 'Sites',
         href: sites.index().url,
         icon: MapPin,
