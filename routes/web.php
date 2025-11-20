@@ -37,6 +37,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/comparison', [\App\Http\Controllers\Api\ReportsController::class, 'meterComparison']);
     });
     
+    // Analytics API routes
+    Route::prefix('api/analytics')->group(function () {
+        Route::get('/realtime-power', [\App\Http\Controllers\AnalyticsController::class, 'realtimePower']);
+        Route::get('/energy-trend', [\App\Http\Controllers\AnalyticsController::class, 'energyTrend']);
+        Route::get('/power-quality', [\App\Http\Controllers\AnalyticsController::class, 'powerQuality']);
+        Route::get('/demand-analysis', [\App\Http\Controllers\AnalyticsController::class, 'demandAnalysis']);
+        Route::get('/site-aggregation', [\App\Http\Controllers\AnalyticsController::class, 'siteAggregation']);
+        Route::get('/top-consumers', [\App\Http\Controllers\AnalyticsController::class, 'topConsumers']);
+    });
+    
     // Global search
     Route::get('api/search', [\App\Http\Controllers\Api\SearchController::class, 'search']);
     
