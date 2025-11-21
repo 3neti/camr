@@ -21,9 +21,11 @@ import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileCo
 import * as reports from '@/actions/App/Http/Controllers/ReportsController';
 import * as users from '@/actions/App/Http/Controllers/UserController';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode, TrendingUp } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode, TrendingUp, Upload } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+
+const page = usePage();
 
 const mainNavItems: NavItem[] = [
     {
@@ -81,6 +83,11 @@ const mainNavItems: NavItem[] = [
         href: users.index().url,
         icon: Users,
     },
+    ...(page.props.auth?.user?.role === 'admin' ? [{
+        title: 'Data Import',
+        href: '/admin/data-import',
+        icon: Upload,
+    }] : []),
 ];
 
 const footerNavItems: NavItem[] = [
