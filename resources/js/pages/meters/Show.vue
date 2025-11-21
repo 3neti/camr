@@ -170,12 +170,12 @@ const abortController = ref<AbortController>(new AbortController())
 
 onMounted(() => {
   abortController.value = new AbortController()
-  console.log('Show.vue mounted - meter:', meter)
-  console.log('meter.meter_data:', meter.meter_data)
-  if (meter.meter_data && meter.meter_data.length > 0) {
-    console.log('Latest reading:', meter.meter_data[0])
-    console.log('wh_total:', meter.meter_data[0].wh_total, typeof meter.meter_data[0].wh_total)
-    console.log('wh_delivered:', meter.meter_data[0].wh_delivered, typeof meter.meter_data[0].wh_delivered)
+  console.log('Show.vue mounted - meter:', props.meter)
+  console.log('meter.meter_data:', props.meter.meter_data)
+  if (props.meter.meter_data && props.meter.meter_data.length > 0) {
+    console.log('Latest reading:', props.meter.meter_data[0])
+    console.log('wh_total:', props.meter.meter_data[0].wh_total, typeof props.meter.meter_data[0].wh_total)
+    console.log('wh_delivered:', props.meter.meter_data[0].wh_delivered, typeof props.meter.meter_data[0].wh_delivered)
   }
   fetchPowerData()
   fetchLoadProfile()
@@ -345,10 +345,10 @@ onUnmounted(() => {
           </CardHeader>
           <CardContent>
             <div class="text-2xl font-bold">
-              {{ formatPower(energySummary.avg_power).value }} 
-              <span class="text-base">{{ formatPower(energySummary.avg_power).unit }}</span>
+              {{ formatPower(energySummary.avg_power || 0).value }} 
+              <span class="text-base">{{ formatPower(energySummary.avg_power || 0).unit }}</span>
             </div>
-            <p class="text-xs text-muted-foreground">{{ energySummary.period_days }}-day average</p>
+            <p class="text-xs text-muted-foreground">{{ energySummary.period_days || 30 }}-day average</p>
           </CardContent>
         </Card>
         
@@ -359,8 +359,8 @@ onUnmounted(() => {
           </CardHeader>
           <CardContent>
             <div class="text-2xl font-bold">
-              {{ formatPower(Math.abs(energySummary.peak_power)).value }} 
-              <span class="text-base">{{ formatPower(Math.abs(energySummary.peak_power)).unit }}</span>
+              {{ formatPower(Math.abs(energySummary.peak_power || 0)).value }} 
+              <span class="text-base">{{ formatPower(Math.abs(energySummary.peak_power || 0)).unit }}</span>
             </div>
             <p class="text-xs text-muted-foreground">Maximum recorded</p>
           </CardContent>
