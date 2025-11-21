@@ -18,11 +18,13 @@ class DatabaseSeeder extends Seeder
         // Seed users only
         $this->call(UserSeeder::class);
         
-        // TODO: Restore these seeders for demo data in the future
+        // Import demo/test data
+        $this->call(LiveDataSeeder::class);
+        
+        // TODO: Restore these seeders for additional demo data in the future
         // $this->call([
-        //     // Import all real data from SQL dump
-        //     // This includes: sites, users, gateways, meters, and meter readings
-        //     LiveDataSeeder::class,
+        //     // Import fresh meter readings from CSV files
+        //     // These contain the most recent data exported from the live system
         //     
         //     // Import fresh meter readings from CSV files
         //     // These contain the most recent data exported from the live system
