@@ -52,7 +52,9 @@ watch(
   async () => {
     if (shouldAutoScroll.value && !props.isPaused) {
       await nextTick()
-      feedContainer.value?.scrollTo({ top: 0, behavior: 'smooth' })
+      if (feedContainer.value) {
+        feedContainer.value.scrollTop = 0
+      }
     }
   }
 )

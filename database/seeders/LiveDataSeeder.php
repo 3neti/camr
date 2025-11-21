@@ -19,44 +19,18 @@ use Carbon\Carbon;
 /**
  * Live Data Seeder
  * 
- * Imports real meter data from the legacy SQL dump.
- * This seeder extracts actual readings from the production backup.
+ * Creates sample data for development.
+ * For production data import, use the SQL Dump Uploader at /admin/data-import
  */
 class LiveDataSeeder extends Seeder
 {
-    private SqlDumpParser $parser;
-    private string $sqlDumpPath;
-    
-    public function __construct()
-    {
-        $this->sqlDumpPath = env('SQL_DUMP_PATH', '/Users/rli/Documents/DEC/backup/meter_reading/meter_reading.sql');
-    }
-    
     /**
      * Run the database seeder.
      */
     public function run(): void
     {
-        $this->command->info('🔄 Parsing SQL dump file...');
-        
-        $this->parser = new SqlDumpParser($this->sqlDumpPath);
-        $this->parser->parse();
-        
-        // Get statistics
-        $stats = $this->parser->getStatistics();
-        $this->command->info('📊 Found ' . count($stats) . ' tables in dump');
-        
-        // Import data in proper dependency order
-        DB::transaction(function () {
-            $this->importSites();
-            $this->importUsers();
-            $this->importGateways();
-            $this->importMeters();
-            $this->importMeterData();
-        });
-        
-        $this->command->newLine();
-        $this->command->info('✅ Live data import completed!');
+        $this->command->info('ℹ️  LiveDataSeeder: Use the Data Import page to upload meter data.');
+        $this->command->info('   Visit: /admin/data-import');
     }
     
     /**
