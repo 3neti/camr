@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\{StoreMeterRequest, UpdateMeterRequest};
+use App\Http\Resources\MeterDataResource;
 use App\Models\{Meter, Gateway, Location, Building, Site};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -93,6 +94,9 @@ class MeterController extends Controller
             'meterData' => fn ($q) => $q->latest('reading_datetime')->limit(10),
             'loadProfiles' => fn ($q) => $q->latest('reading_datetime')->limit(5),
         ]);
+
+        // Transform meter data with type safety
+        $meter->meter_data = MeterDataResource::collection($meter->meterData);
 
         return Inertia::render('meters/Show', [
             'meter' => $meter,
