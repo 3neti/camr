@@ -23,8 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleAppearance::class,
             ManageSiteContext::class,
-            ShareUiSettings::class,
             HandleInertiaRequests::class,
+            ShareUiSettings::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
