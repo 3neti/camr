@@ -201,6 +201,71 @@ protected function status(): Attribute
 2. **Dashboard** - Overview of system status and quick stats
 3. **Navigation** - Use the sidebar to access different sections
 
+### Data Import
+
+Data Import allows administrators and authorized users to bulk import meter data and related records from SQL or CSV files.
+
+#### Accessing Data Import
+
+1. Go to Settings in the sidebar
+2. Click Data Import
+3. Use the upload area and review your Import History
+
+#### Supported File Types
+
+- SQL (.sql)
+  - Best for bulk imports with related data
+  - Must include INSERT statements for required tables:
+    - meter_site — Site information
+    - meter_details — Meter specifications/readings
+    - user_tb — Associated user data
+  - Maximum file size: 100 MB
+- CSV (.csv)
+  - Best for simpler imports (from spreadsheets)
+  - First row must contain non-empty header names
+  - At least one data row is required
+  - Each row must have the same number of columns as the header
+  - Maximum file size: 100 MB
+
+#### Upload Process
+
+1. Drag-and-drop or click to select a file
+2. Choose the correct file type (SQL or CSV)
+3. The app validates the file:
+   - Checks extension and size
+   - Validates SQL structure or CSV headers/rows
+   - Shows warnings for potential issues
+4. If validation passes, click Import to start processing
+5. Track progress in the Import History panel
+
+#### Import History
+
+- File Name — Uploaded filename
+- Type — SQL or CSV
+- Status — Pending, Processing, Completed, or Failed
+- Records — Processed/total records
+- Progress — Real-time progress indicator
+- Actions — View details or Cancel (for pending/processing)
+
+#### Cancelling an Import
+
+- Click Cancel beside a pending or processing job
+- Completed/failed jobs cannot be cancelled
+
+#### Common Issues
+
+- 419 error (session/CSRF): Ensure you’re signed in normally (not blocking cookies). Refresh and retry.
+- Invalid file type: Make sure the extension matches the selection (.sql vs .csv).
+- Missing required SQL tables: Include INSERTs for meter_site, meter_details, and user_tb.
+- Invalid CSV structure: Ensure headers are present and non-empty; rows match header column count.
+
+#### Tips
+
+- Start small: Test with a small sample before large imports
+- Validate data: Ensure SQL syntax/CSV shape is correct
+- Monitor progress: Keep the page open to observe status
+- Keep backups: Retain original files for audit and recovery
+
 ### Managing Sites
 
 **Sites** are the top level of the hierarchy (e.g., a campus or facility).
