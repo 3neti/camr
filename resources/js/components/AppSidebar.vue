@@ -85,7 +85,7 @@ const mainNavItems: NavItem[] = [
     },
     ...(page.props.auth?.user?.role === 'admin' ? [{
         title: 'Data Import',
-        href: '/admin/data-import',
+        href: '/settings/data-import',
         icon: Upload,
     }] : []),
 ];
