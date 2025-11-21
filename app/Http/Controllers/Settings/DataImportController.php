@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ProcessCsvImportJob;
 use App\Jobs\ProcessSqlDumpJob;
 use App\Models\ImportJob;
+use App\Services\FileValidator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -63,6 +64,26 @@ class DataImportController extends Controller
         $directory = $type === 'sql' ? 'imports/sql' : 'imports/csv';
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs($directory, $filename);
+        $fullPath = Storage::path($path);
+
+        // Validate file before processing
+        $validator = new FileValidator();
+        $isValid = $type === 'sql' 
+            ? $validator->validateSqlDump($fullPath)
+            : $validator->validateCsv($fullPath);
+        
+        $validationResult = $validator->getValidationResult();
+
+        // If validation failed, return error to user
+        if (!$isValid) {
+            Storage::delete($path); // Clean up the file
+            return response()->json([
+                'success' => false,
+                'message' => 'File validation failed',
+                'errors' => $validationResult['errors'],
+                'warnings' => $validationResult['warnings'],
+            ], 422);
+        }
 
         // Quick validation and get row count for preview
         $info = $this->getFileInfo($path, $type);
@@ -73,6 +94,8 @@ class DataImportController extends Controller
             'filename' => $file->getClientOriginalName(),
             'size' => $file->getSize(),
             'info' => $info,
+            'statistics' => $validationResult['statistics'],
+            'warnings' => $validationResult['warnings'],
         ]);
     }
 

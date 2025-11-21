@@ -70,6 +70,12 @@ async function uploadFile(file: File, type: 'sql' | 'csv' | 'zip') {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('type', type)
+    
+    // Add CSRF token to FormData
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+    if (csrfToken) {
+      formData.append('_token', csrfToken)
+    }
 
     const response = await axios.post('/settings/data-import/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }

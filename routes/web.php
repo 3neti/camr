@@ -62,12 +62,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('demo/notifications', fn() => Inertia::render('Demo/Notifications'))->name('demo.notifications');
 });
 
-// Admin Routes
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('data-import', [\App\Http\Controllers\Admin\DataImportController::class, 'show'])->name('data-import.show');
-    Route::post('data-import/upload', [\App\Http\Controllers\Admin\DataImportController::class, 'upload'])->name('data-import.upload');
-    Route::get('data-import/{importId}/status', [\App\Http\Controllers\Admin\DataImportController::class, 'status'])->name('data-import.status');
-    Route::delete('data-import/{importId}', [\App\Http\Controllers\Admin\DataImportController::class, 'cancel'])->name('data-import.cancel');
-});
 
 require __DIR__.'/settings.php';
