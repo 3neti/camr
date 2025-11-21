@@ -195,7 +195,7 @@ onUnmounted(() => {
             <strong>Latest Reading:</strong>
             <div class="mt-1 p-2 bg-green-100 dark:bg-green-900/20 rounded">
               <div>Time: {{ new Date(meter.meter_data[0].reading_datetime).toLocaleString() }}</div>
-              <div>Total Energy: {{ meter.meter_data[0].wh_total?.toFixed(1) || '0' }} Wh ({{ (meter.meter_data[0].wh_total / 1000).toFixed(2) }} kWh)</div>
+              <div>Total Energy: {{ meter.meter_data[0].wh_total?.toFixed(1) || '0' }} Wh ({{ (meter.meter_data[0].wh_total ? meter.meter_data[0].wh_total / 1000 : 0).toFixed(2) }} kWh)</div>
               <div>Power: {{ meter.meter_data[0].watt || '0' }} W</div>
             </div>
           </div>
@@ -320,7 +320,7 @@ onUnmounted(() => {
             <TrendingUp class="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">{{ (energySummary.total_delivered / 1000).toFixed(2) }} kWh</div>
+            <div class="text-2xl font-bold">{{ (energySummary.total_delivered ? energySummary.total_delivered / 1000 : 0).toFixed(2) }} kWh</div>
             <p class="text-xs text-muted-foreground">Energy consumed</p>
           </CardContent>
         </Card>
