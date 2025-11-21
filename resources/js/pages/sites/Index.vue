@@ -301,7 +301,7 @@ function exportSites() {
                 <TableHead class="w-12">
                   <!-- Single selection mode - no select all -->
                 </TableHead>
-                <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
+                <SortableTableHead column="code" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Code</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('company')">Company</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('division')">Division</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('status')">Status</TableHead>

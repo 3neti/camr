@@ -1,21 +1,26 @@
 <script setup lang="ts">
 import { TableHead } from '@/components/ui/table'
 import { ChevronUp, ChevronDown } from 'lucide-vue-next'
+import { unref, Ref } from 'vue'
 
 interface Props {
   column: string
-  sortColumn?: string | null
-  sortDirection?: 'asc' | 'desc'
+  sortColumn?: string | null | Ref<string | null>
+  sortDirection?: 'asc' | 'desc' | Ref<'asc' | 'desc'>
   class?: string
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<{ sort: [column: string] }>()
 
-const isSorted = () => props.sortColumn === props.column
+// Unwrap refs to handle both ref and value props
+const currentSortColumn = () => unref(props.sortColumn)
+const currentSortDirection = () => unref(props.sortDirection)
+
+const isSorted = () => currentSortColumn() === props.column
 const getSortIcon = () => {
   if (!isSorted()) return null
-  return props.sortDirection === 'asc' ? ChevronUp : ChevronDown
+  return currentSortDirection() === 'asc' ? ChevronUp : ChevronDown
 }
 </script>
 
