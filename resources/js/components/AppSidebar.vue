@@ -20,12 +20,14 @@ import * as meters from '@/actions/App/Http/Controllers/MeterController';
 import * as configFiles from '@/actions/App/Http/Controllers/ConfigurationFileController';
 import * as reports from '@/actions/App/Http/Controllers/ReportsController';
 import * as users from '@/actions/App/Http/Controllers/UserController';
+import * as settings from '@/actions/App/Http/Controllers/Settings/UiPreferencesController';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode, TrendingUp, Upload } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, MapPin, Radio, Zap, BarChart3, Users, Building2, FileCode, TrendingUp, Upload, Settings } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const page = usePage();
+const uiSettings = page.props.uiSettings as any;
 
 const mainNavItems: NavItem[] = [
     {
@@ -48,16 +50,16 @@ const mainNavItems: NavItem[] = [
         href: sites.index().url,
         icon: MapPin,
     },
-    {
+    ...(uiSettings?.show_buildings ? [{
         title: 'Buildings',
         href: buildings.index().url,
         icon: Building2,
-    },
-    {
+    }] : []),
+    ...(uiSettings?.show_locations ? [{
         title: 'Locations',
         href: locations.index().url,
         icon: MapPin,
-    },
+    }] : []),
     {
         title: 'Gateways',
         href: gateways.index().url,
@@ -68,11 +70,11 @@ const mainNavItems: NavItem[] = [
         href: meters.index().url,
         icon: Zap,
     },
-    {
+    ...(uiSettings?.show_config_files ? [{
         title: 'Config Files',
         href: configFiles.index().url,
         icon: FileCode,
-    },
+    }] : []),
     {
         title: 'Reports',
         href: reports.index().url,

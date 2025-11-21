@@ -4,6 +4,7 @@ use App\Http\Controllers\Settings\DataImportController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
+use App\Http\Controllers\Settings\UiPreferencesController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,6 +27,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
+    
+    // UI Preferences
+    Route::get('settings/sidebar', [UiPreferencesController::class, 'edit'])->name('ui-preferences.edit');
+    Route::patch('settings/sidebar', [UiPreferencesController::class, 'update'])->name('ui-preferences.update');
     
     // Data Import
     Route::get('settings/data-import', [DataImportController::class, 'index'])->name('data-import.index');
