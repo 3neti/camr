@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UploadSqlDumpRequest;
 use App\Jobs\ImportSqlDumpJob;
 use App\Models\DataImport;
+use App\Services\FileValidator;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Inertia\Inertia;
@@ -57,21 +58,48 @@ class DataImportController extends Controller implements HasMiddleware
         $fullPath = $importsDir . DIRECTORY_SEPARATOR . $filename;
         $file->move($importsDir, $filename);
 
-        // Create import record
+        // Validate file before processing
+        $validator = new FileValidator();
+        $isValid = $validator->validateSqlDump($fullPath);
+        $validationResult = $validator->getValidationResult();
+
+        // If validation failed, return error to user
+        if (!$isValid) {
+            @unlink($fullPath); // Clean up the file
+            return response()->json([
+                'success' => false,
+                'message' => 'File validation failed',
+                'errors' => $validationResult['errors'],
+                'warnings' => $validationResult['warnings'],
+            ], 422);
+        }
+
+        // Create import record with validation info
         $import = DataImport::create([
             'user_id' => auth()->id(),
             'filename' => $filename,
             'file_path' => $fullPath,
             'status' => 'queued',
+            'statistics' => $validationResult['statistics'],
         ]);
+
+        // If there are warnings, still proceed but log them
+        if (!empty($validationResult['warnings'])) {
+            \Illuminate\Support\Facades\Log::warning('SQL dump validation warnings', [
+                'import_id' => $import->id,
+                'warnings' => $validationResult['warnings'],
+            ]);
+        }
 
         // Dispatch job
         ImportSqlDumpJob::dispatch($import)->onQueue('default');
 
         return response()->json([
             'success' => true,
-            'message' => 'File uploaded successfully. Processing will start shortly.',
+            'message' => 'File uploaded and validated successfully. Processing will start shortly.',
             'import_id' => $import->id,
+            'statistics' => $validationResult['statistics'],
+            'warnings' => $validationResult['warnings'],
         ]);
     }
 

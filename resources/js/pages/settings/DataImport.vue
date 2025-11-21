@@ -64,6 +64,7 @@ async function handleZipUpload(event: Event) {
 async function uploadFile(file: File, type: 'sql' | 'csv' | 'zip') {
   uploading.value = true
   error.value = ''
+  success.value = ''
 
   try {
     const formData = new FormData()
@@ -73,6 +74,22 @@ async function uploadFile(file: File, type: 'sql' | 'csv' | 'zip') {
     const response = await axios.post('/settings/data-import/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
+
+    // Check for validation errors (422 status)
+    if (!response.data.success && response.data.errors) {
+      error.value = response.data.message || 'File validation failed'
+      
+      // Add detailed error messages
+      if (response.data.errors.length > 0) {
+        error.value += ':\n' + response.data.errors.join('\n')
+      }
+      
+      // Show warnings too
+      if (response.data.warnings && response.data.warnings.length > 0) {
+        success.value = 'Warnings:\n' + response.data.warnings.join('\n')
+      }
+      return
+    }
 
     // Handle zip file response (contains multiple files)
     if (type === 'zip' && response.data.files) {
@@ -100,10 +117,30 @@ async function uploadFile(file: File, type: 'sql' | 'csv' | 'zip') {
         csvFiles.value.push(uploadedFile)
       }
 
-      success.value = `${file.name} uploaded successfully`
+      success.value = response.data.message || `${file.name} uploaded successfully`
+      
+      // Show file statistics and warnings
+      if (response.data.statistics) {
+        const stats = response.data.statistics
+        const statsText = `\nFile validated:\n  Tables found: ${stats.tables_found || 0}\n  Sites: ${stats.meter_site_rows || 0}\n  Meters: ${stats.meter_details_rows || 0}\n  Users: ${stats.user_tb_rows || 0}\n  Meter data: ${stats.meter_data_rows || 0}`
+        success.value += statsText
+      }
+      
+      if (response.data.warnings && response.data.warnings.length > 0) {
+        success.value += '\n\nWarnings:\n' + response.data.warnings.join('\n')
+      }
     }
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Upload failed'
+    if (err.response?.status === 422) {
+      // Validation failed
+      const data = err.response.data
+      error.value = data.message || 'File validation failed'
+      if (data.errors && data.errors.length > 0) {
+        error.value += ':\n• ' + data.errors.join('\n• ')
+      }
+    } else {
+      error.value = err.response?.data?.error || 'Upload failed'
+    }
   } finally {
     uploading.value = false
   }
