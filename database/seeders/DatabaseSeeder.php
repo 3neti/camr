@@ -15,29 +15,28 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('🌱 Starting database seeding...');
 
-        // Import LIVE data from legacy SQL dump
-        $this->call([
-            // Import all real data from SQL dump
-            // This includes: sites, users, gateways, meters, and meter readings
-            LiveDataSeeder::class,
-            
-            // Import fresh meter readings from CSV files
-            // These contain the most recent data exported from the live system
-            CsvMeterDataSeeder::class,
-            
-            // Optional: Configuration files (if not in SQL dump)
-            ConfigurationFileSeeder::class,
-        ]);
+        // Seed users only
+        $this->call(UserSeeder::class);
         
-        $this->command->newLine();
-        $this->command->comment('💡 All data imported from production SQL dump!');
-        $this->command->comment('💡 Fake seeders backed up in: database/seeders/backup_original/');
-
+        // TODO: Restore these seeders for demo data in the future
+        // $this->call([
+        //     // Import all real data from SQL dump
+        //     // This includes: sites, users, gateways, meters, and meter readings
+        //     LiveDataSeeder::class,
+        //     
+        //     // Import fresh meter readings from CSV files
+        //     // These contain the most recent data exported from the live system
+        //     CsvMeterDataSeeder::class,
+        //     
+        //     // Optional: Configuration files (if not in SQL dump)
+        //     ConfigurationFileSeeder::class,
+        // ]);
+        
         $this->command->newLine();
         $this->command->info('✅ Database seeding completed successfully!');
         $this->command->newLine();
         $this->command->info('🔑 Login credentials:');
-        $this->command->info('   Users imported from SQL dump');
-        $this->command->info('   Default password for all users: password');
+        $this->command->info('   admin@example.com / password');
+        $this->command->info('   test@example.com / password');
     }
 }
