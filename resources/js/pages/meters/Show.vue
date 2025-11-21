@@ -45,11 +45,17 @@ const DEBUG = false
 const getStatusColor = (status: string) => status === 'Online' ? 'bg-green-500' : status === 'Offline' ? 'bg-red-500' : 'bg-gray-500'
 
 // Format power with appropriate unit (W or kW)
-const formatPower = (watts: number) => {
-  if (watts >= 1000) {
-    return { value: (watts / 1000).toFixed(2), unit: 'kW' }
+const formatPower = (watts: number | null | undefined) => {
+  const w = watts || 0
+  if (w >= 1000) {
+    return { value: (w / 1000).toFixed(2), unit: 'kW' }
   }
-  return { value: watts.toFixed(2), unit: 'W' }
+  return { value: w.toFixed(2), unit: 'W' }
+}
+
+// Safe energy formatting
+const formatEnergy = (value: number | null | undefined) => {
+  return (value ? value / 1000 : 0).toFixed(2)
 }
 
 // Chart data
@@ -164,6 +170,13 @@ const abortController = ref<AbortController>(new AbortController())
 
 onMounted(() => {
   abortController.value = new AbortController()
+  console.log('Show.vue mounted - meter:', meter)
+  console.log('meter.meter_data:', meter.meter_data)
+  if (meter.meter_data && meter.meter_data.length > 0) {
+    console.log('Latest reading:', meter.meter_data[0])
+    console.log('wh_total:', meter.meter_data[0].wh_total, typeof meter.meter_data[0].wh_total)
+    console.log('wh_delivered:', meter.meter_data[0].wh_delivered, typeof meter.meter_data[0].wh_delivered)
+  }
   fetchPowerData()
   fetchLoadProfile()
   fetchEnergySummary()
@@ -282,14 +295,14 @@ onUnmounted(() => {
               <div>
                 <p class="text-xs text-muted-foreground">Total Energy</p>
                 <p class="text-xl font-bold">
-                  {{ (meter.meter_data[0].wh_total ? meter.meter_data[0].wh_total / 1000 : 0).toFixed(2) }}
+                  {{ formatEnergy(meter.meter_data[0].wh_total) }}
                   <span class="text-sm">kWh</span>
                 </p>
               </div>
               <div>
                 <p class="text-xs text-muted-foreground">Delivered</p>
                 <p class="text-xl font-bold">
-                  {{ (meter.meter_data[0].wh_delivered ? meter.meter_data[0].wh_delivered / 1000 : 0).toFixed(2) }}
+                  {{ formatEnergy(meter.meter_data[0].wh_delivered) }}
                   <span class="text-sm">kWh</span>
                 </p>
               </div>
@@ -320,7 +333,7 @@ onUnmounted(() => {
             <TrendingUp class="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">{{ (energySummary.total_delivered ? energySummary.total_delivered / 1000 : 0).toFixed(2) }} kWh</div>
+            <div class="text-2xl font-bold">{{ formatEnergy(energySummary.total_delivered) }} kWh</div>
             <p class="text-xs text-muted-foreground">Energy consumed</p>
           </CardContent>
         </Card>
