@@ -256,6 +256,62 @@ onUnmounted(() => {
         </Card>
       </div>
 
+      <!-- Latest Reading (Live Data) -->
+      <div v-if="meter.meter_data && meter.meter_data.length > 0" class="grid gap-4 md:grid-cols-3">
+        <Card class="md:col-span-3 bg-blue-50 dark:bg-blue-900/20 border-blue-300">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <Zap class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <CardTitle>Latest Reading</CardTitle>
+              </div>
+              <p class="text-xs text-muted-foreground">
+                {{ new Date(meter.meter_data[0].reading_datetime).toLocaleString() }}
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div>
+                <p class="text-xs text-muted-foreground">Power</p>
+                <p class="text-xl font-bold">
+                  {{ formatPower(meter.meter_data[0].watt || 0).value }}
+                  <span class="text-sm">{{ formatPower(meter.meter_data[0].watt || 0).unit }}</span>
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-muted-foreground">Total Energy</p>
+                <p class="text-xl font-bold">
+                  {{ (meter.meter_data[0].wh_total ? meter.meter_data[0].wh_total / 1000 : 0).toFixed(2) }}
+                  <span class="text-sm">kWh</span>
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-muted-foreground">Delivered</p>
+                <p class="text-xl font-bold">
+                  {{ (meter.meter_data[0].wh_delivered ? meter.meter_data[0].wh_delivered / 1000 : 0).toFixed(2) }}
+                  <span class="text-sm">kWh</span>
+                </p>
+              </div>
+              <div v-if="meter.meter_data[0].vrms_a || meter.meter_data[0].vrms_b || meter.meter_data[0].vrms_c">
+                <p class="text-xs text-muted-foreground">Avg Voltage</p>
+                <p class="text-xl font-bold">
+                  {{ (((meter.meter_data[0].vrms_a || 0) + (meter.meter_data[0].vrms_b || 0) + (meter.meter_data[0].vrms_c || 0)) / 3).toFixed(1) }}
+                  <span class="text-sm">V</span>
+                </p>
+              </div>
+              <div v-if="meter.meter_data[0].irms_a || meter.meter_data[0].irms_b || meter.meter_data[0].irms_c">
+                <p class="text-xs text-muted-foreground">Avg Current</p>
+                <p class="text-xl font-bold">
+                  {{ (((meter.meter_data[0].irms_a || 0) + (meter.meter_data[0].irms_b || 0) + (meter.meter_data[0].irms_c || 0)) / 3).toFixed(1) }}
+                  <span class="text-sm">A</span>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <!-- Energy Summary Stats -->
       <div v-if="energySummary" class="grid gap-4 md:grid-cols-3">
         <Card>

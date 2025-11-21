@@ -181,12 +181,21 @@ class ReportsController extends Controller
             ->groupBy('date')
             ->get();
         
-        // Calculate consumption from wh_total (cumulative energy)
-        $totalConsumed = ($latest->wh_total ?? 0) - ($oldest->wh_total ?? 0);
-        
-        // Calculate average power from energy difference
-        $hoursElapsed = $oldest->reading_datetime->diffInHours($latest->reading_datetime);
-        $avgPower = $hoursElapsed > 0 ? ($totalConsumed / $hoursElapsed) : 0;
+        // Calculate consumption from wh_total delta
+        // If only one reading, use the wh_total value as cumulative energy; otherwise calculate delta
+        if ($latest->id === $oldest->id) {
+            // Single reading: use wh_total as the cumulative consumed energy
+            // and wh_delivered if available (some systems track delivered separately)
+            $totalConsumed = ($latest->wh_delivered && $latest->wh_delivered > 0) 
+                ? $latest->wh_delivered 
+                : ($latest->wh_total ?? 0);
+            $avgPower = $latest->watt ?? 0;
+        } else {
+            // Multiple readings: calculate delta from start to end
+            $totalConsumed = ($latest->wh_total ?? 0) - ($oldest->wh_total ?? 0);
+            $hoursElapsed = $oldest->reading_datetime->diffInHours($latest->reading_datetime);
+            $avgPower = $hoursElapsed > 0 ? ($totalConsumed / $hoursElapsed) : 0;
+        }
         
         // Get peak power from max demand fields (if available)
         $peakPower = max(

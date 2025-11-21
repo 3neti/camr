@@ -166,6 +166,36 @@ test('authenticated user can view meter details', function () {
         );
 });
 
+test('meter show page displays latest meter reading data', function () {
+    $meter = Meter::factory()->create(['name' => '030011100592']);
+    
+    // Create meter data
+    $meterData = \App\Models\MeterData::factory()->create([
+        'meter_name' => '030011100592',
+        'watt' => 13.88,
+        'wh_total' => 61450.9102,
+        'wh_delivered' => 0,
+        'vrms_a' => 219.4,
+        'vrms_b' => 223.6,
+        'vrms_c' => 224.9,
+        'irms_a' => 28.7,
+        'irms_b' => 14.1,
+        'irms_c' => 22.2,
+    ]);
+
+    actingAs($this->user)
+        ->get(route('meters.show', $meter))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('meters/Show')
+            ->where('meter.id', $meter->id)
+            ->has('meter.meter_data', 1)
+            ->where('meter.meter_data.0.watt', 13.88)
+            ->where('meter.meter_data.0.wh_total', 61450.9102)
+            ->where('meter.meter_data.0.wh_delivered', 0)
+        );
+});
+
 // Edit tests
 test('authenticated user can view edit meter form', function () {
     $meter = Meter::factory()->create();
