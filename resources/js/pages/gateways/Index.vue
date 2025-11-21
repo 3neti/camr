@@ -300,11 +300,11 @@ function exportGateways() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <SortableTableHead column="serial_number" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Serial Number</SortableTableHead>
+                <SortableTableHead column="serial_number" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Serial Number</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('mac_address')" column="mac_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">MAC Address</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('ip_address')" column="ip_address" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">IP Address</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('mac_address')" column="mac_address" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">MAC Address</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('ip_address')" column="ip_address" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">IP Address</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Status</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('last_update')">Last Update</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>

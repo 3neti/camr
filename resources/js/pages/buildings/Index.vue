@@ -154,8 +154,8 @@ function exportBuildings() {
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead column="code" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Code</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('description')" column="description" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Description</SortableTableHead>
+                <SortableTableHead column="code" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Code</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('description')" column="description" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Description</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('created')">Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>

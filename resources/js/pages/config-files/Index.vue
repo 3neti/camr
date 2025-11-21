@@ -125,7 +125,7 @@ function exportConfigFiles() {
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead column="meter_model" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Meter Model</SortableTableHead>
+                <SortableTableHead column="meter_model" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Meter Model</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('meters_using')">Meters Using</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('created')">Created</TableHead>
                 <TableHead class="text-right">Actions</TableHead>

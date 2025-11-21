@@ -263,13 +263,13 @@ function exportMeters() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <SortableTableHead column="name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Name</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('type')" column="type" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Type</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('brand')" column="brand" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Brand</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('customer')" column="customer_name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Customer</SortableTableHead>
+                <SortableTableHead column="name" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Name</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('type')" column="type" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Type</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('brand')" column="brand" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Brand</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('customer')" column="customer_name" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Customer</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('gateway')">Gateway</TableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Status</SortableTableHead>
+                <SortableTableHead v-if="columnPrefs.isColumnVisible('status')" column="status" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Status</SortableTableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>

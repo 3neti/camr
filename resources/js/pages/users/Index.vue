@@ -273,8 +273,8 @@ function exportUsers() {
                     @update:checked="bulk.allSelected.value = $event" 
                   />
                 </TableHead>
-                <SortableTableHead column="name" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Name</SortableTableHead>
-                <SortableTableHead column="email" :sort-column="sorting.sortColumn.value" :sort-direction="sorting.sortDirection.value" @sort="handleSort">Email</SortableTableHead>
+                <SortableTableHead column="name" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Name</SortableTableHead>
+                <SortableTableHead column="email" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Email</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('job_title')">Job Title</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('role')">Role</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('access_level')">Access</TableHead>
