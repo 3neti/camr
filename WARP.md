@@ -207,3 +207,30 @@ php artisan serve               # Start development server (port 8000)
 **Concurrently**
 - Used in `composer dev` to run multiple processes
 - Colorized output for server, queue, logs, and vite
+
+## AI Development with Laravel Boost
+
+This project uses Laravel Boost to provide AI agents with contextual understanding.
+
+### Available MCP Tools
+
+- `search-docs` - Search Laravel ecosystem documentation
+- `tinker` - Execute PHP code in application context
+- `database-query` - Query database directly
+- `list-artisan-commands` - List available Artisan commands
+- `browser-logs` - Read frontend error logs
+- Full list: `php artisan boost:mcp --help`
+
+### Custom Guidelines Location
+
+Project-specific AI guidelines are in `.ai/guidelines/camr/` and include:
+
+- Domain knowledge (meter infrastructure hierarchy)
+- Feature documentation (data imports, analytics, site filtering)
+- Testing patterns
+- Frontend conventions
+- Architecture patterns
+
+### Updating Guidelines
+
+Run `php artisan boost:update` to refresh Laravel ecosystem guidelines after package updates.

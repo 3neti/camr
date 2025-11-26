@@ -27,3 +27,9 @@ yarn-error.log
 /.vscode
 /.zed
 /resources/js/config/tableColumns.ts
+
+# Laravel Boost generated files
+/boost.json
+/.mcp.json
+/CLAUDE.md
+/.junie/
