@@ -63,4 +63,39 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+// ============================================================================
+// Legacy PHP endpoint aliases (backward compatibility with deployed gateways)
+// ============================================================================
+// These routes maintain the exact URL structure from the old PHP system
+// All route to the modern GatewayPollingController methods
+// No authentication - maintains backward compatibility with deployed IoT devices
+
+use App\Http\Controllers\Api\GatewayPollingController;
+
+// CSV meter list updates (legacy URLs)
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/get_update_csv', [GatewayPollingController::class, 'checkCsvUpdate'])
+    ->name('legacy.gateway.check-csv');
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/get_content_csv', [GatewayPollingController::class, 'getCsvContent'])
+    ->name('legacy.gateway.csv');
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/reset_update_csv', [GatewayPollingController::class, 'resetCsvUpdate'])
+    ->name('legacy.gateway.reset-csv');
+
+// Site code updates (legacy URLs)
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/get_update_location', [GatewayPollingController::class, 'checkSiteCodeUpdate'])
+    ->name('legacy.gateway.check-site-code');
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/get_content_location', [GatewayPollingController::class, 'getSiteCode'])
+    ->name('legacy.gateway.site-code');
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/reset_update_location', [GatewayPollingController::class, 'resetSiteCodeUpdate'])
+    ->name('legacy.gateway.reset-site-code');
+
+// Force load profile (legacy URLs)
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/force_lp', [GatewayPollingController::class, 'checkForceLoadProfile'])
+    ->name('legacy.gateway.check-load-profile');
+Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/reset_force_lp', [GatewayPollingController::class, 'resetForceLoadProfile'])
+    ->name('legacy.gateway.reset-load-profile');
+
+// Server time (legacy URL at root)
+Route::get('/check_time.php', [GatewayPollingController::class, 'getServerTime'])
+    ->name('legacy.server-time');
+
 require __DIR__.'/settings.php';

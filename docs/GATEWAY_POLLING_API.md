@@ -33,15 +33,41 @@ Additionally, gateways can synchronize their system time with the server.
 
 ### Base URL
 
+**Modern API** (recommended):
 ```
 https://your-server.com/api
 ```
+
+**Legacy URLs** (backward compatibility):
+```
+https://your-server.com
+```
+
+Both URL structures are supported and route to the same controller methods.
 
 ### Authentication
 
 **None** - These endpoints have no authentication to maintain backward compatibility with deployed IoT devices that cannot be easily reconfigured.
 
 ⚠️ **Security Note**: Rate limiting is recommended (10-minute polling intervals).
+
+### URL Compatibility
+
+The API supports both modern RESTful URLs and legacy PHP URLs for backward compatibility:
+
+| Workflow | Modern URL | Legacy PHP URL |
+|----------|------------|----------------|
+| Check CSV | `/api/gateway/{mac}/check/csv` | `/rtu/index.php/rtu/rtu_check_update/{mac}/get_update_csv` |
+| Get CSV | `/api/gateway/{mac}/csv` | `/rtu/index.php/rtu/rtu_check_update/{mac}/get_content_csv` |
+| Reset CSV | `/api/gateway/{mac}/csv/reset` | `/rtu/index.php/rtu/rtu_check_update/{mac}/reset_update_csv` |
+| Check Site | `/api/gateway/{mac}/check/site-code` | `/rtu/index.php/rtu/rtu_check_update/{mac}/get_update_location` |
+| Get Site | `/api/gateway/{mac}/site-code` | `/rtu/index.php/rtu/rtu_check_update/{mac}/get_content_location` |
+| Reset Site | `/api/gateway/{mac}/site-code/reset` | `/rtu/index.php/rtu/rtu_check_update/{mac}/reset_update_location` |
+| Check Load | `/api/gateway/{mac}/check/load-profile` | `/rtu/index.php/rtu/rtu_check_update/{mac}/force_lp` |
+| Reset Load | `/api/gateway/{mac}/load-profile/reset` | `/rtu/index.php/rtu/rtu_check_update/{mac}/reset_force_lp` |
+| Server Time | `/api/server-time` | `/check_time.php` |
+
+All legacy URLs are aliases and return identical responses to the modern API.
 
 ---
 
