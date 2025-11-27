@@ -74,7 +74,7 @@ class GatewayController extends Controller
         $gateway->load([
             'site',
             'location',
-            'meters' => fn ($q) => $q->with('location'),
+            'meters' => fn ($q) => $q->with(['location', 'configurationFile']),
         ]);
 
         return Inertia::render('gateways/Show', [

@@ -10,6 +10,7 @@ use App\Models\Company;
 use App\Models\Division;
 use App\Models\User;
 use App\Models\DataImport;
+use App\Models\ConfigurationFile;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -218,6 +219,23 @@ class SqlDumpImporter
 
             if (!$gateway) continue;
 
+            // Handle configuration file (meter_config_file in legacy system)
+            $configurationFileId = null;
+            $configFile = $row['meter_config_file'] ?? ($row['meter_model'] ?? null);
+            
+            if ($configFile && str_ends_with($configFile, '.cfg')) {
+                // This is a config file, create or find ConfigurationFile record
+                $configFileRecord = ConfigurationFile::firstOrCreate(
+                    ['meter_model' => $configFile],
+                    [
+                        'config_file_content' => '', // Empty string as placeholder
+                        'created_by' => null,
+                        'updated_by' => null,
+                    ]
+                );
+                $configurationFileId = $configFileRecord->id;
+            }
+
             Meter::updateOrCreate([
                 'name' => $name,
                 'site_id' => $site->id,
@@ -227,7 +245,9 @@ class SqlDumpImporter
                 'is_addressable' => (int)($row['meter_name_addressable'] ?? 1) === 1,
                 'has_load_profile' => (($row['meter_load_profile'] ?? 'NO') === 'YES'),
                 'type' => $row['meter_type'] ?? null,
-                'brand' => $row['meter_model'] ?? null,
+                'brand' => null, // Brand should be actual manufacturer (Schneider, ABB, etc.), not config file
+                'configuration_file_id' => $configurationFileId,
+                'default_name' => $row['meter_default_name'] ?? null,
                 'role' => $row['meter_role'] ?? 'Client Meter',
                 'customer_name' => $row['customer_name'] ?? null,
                 'multiplier' => (float)($row['meter_multiplier'] ?? 1),

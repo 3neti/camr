@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Company;
+use App\Models\ConfigurationFile;
 use App\Models\Division;
 use App\Models\Gateway;
 use App\Models\ImportJob;
@@ -200,12 +201,34 @@ class ProcessSqlDumpJob implements ShouldQueue
                 : Gateway::first();
             if (!$gateway) continue;
 
+            // Handle configuration file (meter_config_file in legacy system)
+            $configurationFileId = null;
+            $configFile = $row['meter_config_file'] ?? ($row['meter_model'] ?? null);
+            
+            if ($configFile && str_ends_with($configFile, '.cfg')) {
+                // This is a config file, create or find ConfigurationFile record
+                $configFileRecord = ConfigurationFile::firstOrCreate(
+                    ['meter_model' => $configFile],
+                    [
+                        'config_file_content' => '', // Empty string as placeholder
+                        'created_by' => null,
+                        'updated_by' => null,
+                    ]
+                );
+                $configurationFileId = $configFileRecord->id;
+            }
+
             Meter::updateOrCreate(['name' => $name, 'site_id' => $site->id, 'gateway_id' => $gateway->id], [
                 'site_code' => $site->code,
                 'type' => $row['meter_type'] ?? null,
-                'brand' => $row['meter_model'] ?? null,
+                'brand' => null, // Brand should be actual manufacturer (Schneider, ABB, etc.), not config file
+                'configuration_file_id' => $configurationFileId,
+                'default_name' => $row['meter_default_name'] ?? null,
+                'is_addressable' => (int)($row['meter_name_addressable'] ?? 1) === 1,
+                'has_load_profile' => (($row['meter_load_profile'] ?? 'NO') === 'YES'),
                 'role' => $row['meter_role'] ?? 'Client Meter',
                 'customer_name' => $row['customer_name'] ?? null,
+                'multiplier' => (float)($row['meter_multiplier'] ?? 1),
                 'status' => ($row['meter_status'] ?? 'Active') === 'INACTIVE' ? 'Inactive' : 'Active',
             ]);
             $imported++;

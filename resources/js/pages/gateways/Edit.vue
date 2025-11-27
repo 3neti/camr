@@ -33,6 +33,7 @@ interface Gateway {
   ip_netmask: string | null
   ip_gateway: string | null
   server_ip: string | null
+  site_code: string | null
   description: string | null
   update_csv: boolean
   update_site_code: boolean
@@ -65,7 +66,7 @@ const props = defineProps<Props>()
 
 const form = useForm({
   site_id: props.gateway.site_id.toString(),
-  location_id: props.gateway.location_id?.toString() || '',
+  location_id: props.gateway.location_id?.toString() || '0',
   serial_number: props.gateway.serial_number,
   mac_address: props.gateway.mac_address || '',
   ip_address: props.gateway.ip_address || '',
@@ -73,11 +74,12 @@ const form = useForm({
   ip_netmask: props.gateway.ip_netmask || '',
   ip_gateway: props.gateway.ip_gateway || '',
   server_ip: props.gateway.server_ip || '',
+  site_code: props.gateway.site_code || '',
   description: props.gateway.description || '',
-  update_csv: props.gateway.update_csv,
-  update_site_code: props.gateway.update_site_code,
-  ssh_enabled: props.gateway.ssh_enabled,
-  force_load_profile: props.gateway.force_load_profile,
+  update_csv: Boolean(props.gateway.update_csv),
+  update_site_code: Boolean(props.gateway.update_site_code),
+  ssh_enabled: Boolean(props.gateway.ssh_enabled),
+  force_load_profile: Boolean(props.gateway.force_load_profile),
   idf_number: props.gateway.idf_number || '',
   switch_name: props.gateway.switch_name || '',
   idf_port: props.gateway.idf_port || '',
@@ -85,7 +87,12 @@ const form = useForm({
 })
 
 const submit = () => {
-  form.put(gateways.update({ gateway: props.gateway.id }).url)
+  // Transform location_id: convert '0' to empty string for null
+  const data = {
+    ...form.data(),
+    location_id: form.location_id === '0' ? '' : form.location_id,
+  }
+  form.transform(() => data).put(gateways.update({ gateway: props.gateway.id }).url)
 }
 </script>
 
@@ -140,7 +147,7 @@ const submit = () => {
                     <SelectValue placeholder="Select location (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="0">None</SelectItem>
                     <SelectItem v-for="location in props.locations" :key="location.id" :value="location.id.toString()">
                       {{ location.code }} - {{ location.description }}
                     </SelectItem>
@@ -222,6 +229,16 @@ const submit = () => {
                   placeholder="e.g., Ethernet, WiFi"
                 />
               </div>
+
+              <div class="space-y-2">
+                <Label for="site_code">Site Code</Label>
+                <Input
+                  id="site_code"
+                  v-model="form.site_code"
+                  placeholder="e.g., SMSL, DECORP"
+                />
+                <p v-if="form.errors.site_code" class="text-sm text-destructive">{{ form.errors.site_code }}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -234,22 +251,22 @@ const submit = () => {
           <CardContent class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div class="flex items-center space-x-2">
-                <Checkbox id="update_csv" v-model:checked="form.update_csv" />
+                <Checkbox id="update_csv" :model-value="form.update_csv" @update:model-value="(val) => form.update_csv = val" />
                 <Label for="update_csv">Update CSV</Label>
               </div>
 
               <div class="flex items-center space-x-2">
-                <Checkbox id="update_site_code" v-model:checked="form.update_site_code" />
+                <Checkbox id="update_site_code" :model-value="form.update_site_code" @update:model-value="(val) => form.update_site_code = val" />
                 <Label for="update_site_code">Update Site Code</Label>
               </div>
 
               <div class="flex items-center space-x-2">
-                <Checkbox id="ssh_enabled" v-model:checked="form.ssh_enabled" />
+                <Checkbox id="ssh_enabled" :model-value="form.ssh_enabled" @update:model-value="(val) => form.ssh_enabled = val" />
                 <Label for="ssh_enabled">SSH Enabled</Label>
               </div>
 
               <div class="flex items-center space-x-2">
-                <Checkbox id="force_load_profile" v-model:checked="form.force_load_profile" />
+                <Checkbox id="force_load_profile" :model-value="form.force_load_profile" @update:model-value="(val) => form.force_load_profile = val" />
                 <Label for="force_load_profile">Force Load Profile</Label>
               </div>
             </div>

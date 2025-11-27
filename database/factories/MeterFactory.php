@@ -25,8 +25,8 @@ class MeterFactory extends Factory
             'site_code' => $this->faker->regexify('[A-Z]{3}-[0-9]{2}'),
             'name' => $this->faker->unique()->bothify('MTR-####'),
             'default_name' => $this->faker->bothify('MTR-####'),
-            'type' => $this->faker->randomElement(['ION6200', 'PM8000', 'PM5500']),
-            'brand' => $this->faker->randomElement(['Schneider', 'ABB', 'Siemens']),
+            'type' => $this->faker->randomElement(['C2000M', 'ION6200', 'PM8000', 'PM5500']),
+            'brand' => $this->faker->randomElement(['Schneider', 'ABB', 'Siemens', 'Landis+Gyr', 'Itron']), // Actual manufacturer
             'role' => $this->faker->randomElement(['Main', 'Sub', 'Check', 'Client Meter']),
             'customer_name' => $this->faker->company(),
             'multiplier' => $this->faker->randomElement([1, 10, 100, 1000]),

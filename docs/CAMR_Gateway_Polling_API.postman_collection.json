@@ -1,0 +1,406 @@
+{
+  "info": {
+    "name": "CAMR Gateway Polling API",
+    "description": "Collection for testing gateway polling endpoints. Gateways poll every 10 minutes for configuration updates. Base URL: http://camr.test/api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "camr-gateway-polling-api-v1",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://camr.test/api",
+      "type": "string"
+    },
+    {
+      "key": "gateway_mac",
+      "value": "4e:b8:61:88:74:4f",
+      "type": "string",
+      "description": "Sample gateway MAC address"
+    }
+  ],
+  "item": [
+    {
+      "name": "CSV Meter List Updates",
+      "item": [
+        {
+          "name": "1. Check CSV Update Required",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "check", "csv"]
+            },
+            "description": "Gateway checks if a new meter list CSV is available.\n\nResponse:\n- `1` = Update required, gateway should download CSV\n- `0` = No update needed"
+          },
+          "response": [
+            {
+              "name": "Update Required",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "check", "csv"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "1"
+            },
+            {
+              "name": "No Update Needed",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "check", "csv"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "0"
+            }
+          ]
+        },
+        {
+          "name": "2. Download CSV Meter List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "csv"]
+            },
+            "description": "Download CSV file containing up to 32 active meters assigned to this gateway.\n\nCSV Format:\nmeter_name,config_file,addressable_meter\n\nExample:\n12345678,decorp_zmd402.cfg,12345678\n87654321,decorp_zmd402.cfg,11111111"
+          },
+          "response": [
+            {
+              "name": "CSV Content",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "csv"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "csv",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/csv"
+                }
+              ],
+              "body": "030011100348,,\n030011100350,,\n030011100351,,\n030011100390,,\n030011100411,,"
+            }
+          ]
+        },
+        {
+          "name": "3. Reset CSV Update Flag",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/csv/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "csv", "reset"]
+            },
+            "description": "Gateway signals completion of CSV download. Server resets the update_csv flag to false."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/csv/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "csv", "reset"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "OK"
+            }
+          ]
+        }
+      ],
+      "description": "3-step process for gateway to download updated meter list"
+    },
+    {
+      "name": "Site Code Updates",
+      "item": [
+        {
+          "name": "1. Check Site Code Update Required",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/site-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "check", "site-code"]
+            },
+            "description": "Gateway checks if site code has changed.\n\nResponse:\n- `1` = Update required, gateway should download site code\n- `0` = No update needed"
+          },
+          "response": [
+            {
+              "name": "Update Required",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/site-code",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "check", "site-code"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "1"
+            }
+          ]
+        },
+        {
+          "name": "2. Download Site Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/site-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "site-code"]
+            },
+            "description": "Download site code (location identifier) for this gateway.\n\nResponse format: location = \"SITE_CODE\"\n\nExample: location = \"DECORP\""
+          },
+          "response": [
+            {
+              "name": "Site Code",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/site-code",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "site-code"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "location = \"SMSL\""
+            }
+          ]
+        },
+        {
+          "name": "3. Reset Site Code Update Flag",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/site-code/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "site-code", "reset"]
+            },
+            "description": "Gateway signals completion of site code update. Server resets the update_site_code flag to false."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/site-code/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "site-code", "reset"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "OK"
+            }
+          ]
+        }
+      ],
+      "description": "3-step process for gateway to download updated site code"
+    },
+    {
+      "name": "Force Load Profile",
+      "item": [
+        {
+          "name": "1. Check Force Load Profile Required",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/load-profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "check", "load-profile"]
+            },
+            "description": "Gateway checks if server wants immediate load profile upload.\n\nResponse:\n- `1` = Upload load profile now\n- `0` = No action needed\n\nNote: Gateway automatically uploads load profile daily at midnight. This flag forces immediate upload."
+          },
+          "response": [
+            {
+              "name": "Upload Required",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/check/load-profile",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "check", "load-profile"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "1"
+            }
+          ]
+        },
+        {
+          "name": "2. Reset Force Load Profile Flag",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/load-profile/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["gateway", "{{gateway_mac}}", "load-profile", "reset"]
+            },
+            "description": "Gateway signals completion of load profile upload. Server resets the force_load_profile flag to false."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/load-profile/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["gateway", "{{gateway_mac}}", "load-profile", "reset"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "OK"
+            }
+          ]
+        }
+      ],
+      "description": "2-step process for server to trigger immediate load profile upload"
+    },
+    {
+      "name": "Server Time Synchronization",
+      "item": [
+        {
+          "name": "Get Server Time",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/server-time",
+              "host": ["{{baseUrl}}"],
+              "path": ["server-time"]
+            },
+            "description": "Returns current server time for gateway clock synchronization.\n\nFormat: YYYY-MM-DD HH:MM:SS\n\nExample: 2025-11-27 08:30:15\n\nGateway compares this with its local time and adjusts if different."
+          },
+          "response": [
+            {
+              "name": "Current Time",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/server-time",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["server-time"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "2025-11-27 10:00:19"
+            }
+          ]
+        }
+      ],
+      "description": "Gateway time synchronization"
+    },
+    {
+      "name": "Test - Enable CSV Update Flag",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/gateway/{{gateway_mac}}/test/enable-csv",
+          "host": ["{{baseUrl}}"],
+          "path": ["gateway", "{{gateway_mac}}", "test", "enable-csv"]
+        },
+        "description": "⚠️ TEST HELPER (Not a real endpoint)\n\nTo enable CSV update flag for testing, use:\n```bash\nphp artisan tinker --execute=\"App\\Models\\Gateway::where('mac_address', '4e:b8:61:88:74:4f')->update(['update_csv' => true]);\"\n```\n\nOr in Tinker:\n```php\n$gateway = App\\Models\\Gateway::where('mac_address', '4e:b8:61:88:74:4f')->first();\n$gateway->update_csv = true;\n$gateway->save();\n```"
+      }
+    }
+  ]
+}

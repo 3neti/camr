@@ -53,6 +53,7 @@ const form = useForm({
   ip_netmask: '',
   ip_gateway: '',
   server_ip: '',
+  site_code: '',
   description: '',
   update_csv: false,
   update_site_code: false,

@@ -25,6 +25,7 @@ interface Props {
     last_log_update: string | null
     gateway: { serial_number: string; site: { code: string } }
     location: { code: string; description: string } | null
+    configuration_file: { id: number; meter_model: string } | null
     meter_data?: Array<{
       id: number
       reading_datetime: string
@@ -228,7 +229,7 @@ onUnmounted(() => {
               {{ meter.name }}
               <Badge :class="getStatusColor(meter.status_label)" variant="outline">{{ meter.status_label }}</Badge>
             </h1>
-            <p class="text-muted-foreground">{{ meter.type }} • {{ meter.brand }}</p>
+            <p class="text-muted-foreground">{{ meter.type }}<template v-if="meter.configuration_file"> • <span class="font-mono text-xs">{{ meter.configuration_file.meter_model }}</span></template></p>
           </div>
         </div>
         <Link :href="meters.edit({ meter: meter.id }).url">
@@ -452,8 +453,8 @@ onUnmounted(() => {
                   <span class="font-medium">{{ meter.type }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-muted-foreground">Brand:</span>
-                  <span class="font-medium">{{ meter.brand }}</span>
+                  <span class="text-muted-foreground">Config File:</span>
+                  <span class="font-medium font-mono text-xs">{{ meter.configuration_file?.meter_model || '—' }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Customer:</span>

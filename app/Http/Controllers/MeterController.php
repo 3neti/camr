@@ -13,7 +13,7 @@ class MeterController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Meter::with(['gateway.site', 'location'])
+        $query = Meter::with(['gateway.site', 'location', 'configurationFile'])
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -91,6 +91,7 @@ class MeterController extends Controller
             'gateway.site',
             'location',
             'building',
+            'configurationFile',
             'meterData' => fn ($q) => $q->latest('reading_datetime')->limit(10),
             'loadProfiles' => fn ($q) => $q->latest('reading_datetime')->limit(5),
         ]);

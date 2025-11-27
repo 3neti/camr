@@ -33,6 +33,7 @@ interface Meter {
   last_log_update: string | null
   gateway: { id: number; serial_number: string; site: { code: string } }
   location: { code: string } | null
+  configuration_file: { id: number; meter_model: string } | null
 }
 
 interface Props {
@@ -138,7 +139,7 @@ function exportMeters() {
     { key: 'id', label: 'ID' },
     { key: 'name', label: 'Name' },
     { key: 'type', label: 'Type' },
-    { key: 'brand', label: 'Brand' },
+    { key: 'configuration_file.meter_model', label: 'Config File' },
     { key: 'customer_name', label: 'Customer' },
     { key: 'gateway.site.code', label: 'Site' },
     { key: 'gateway.serial_number', label: 'Gateway' },
@@ -241,7 +242,7 @@ function exportMeters() {
                   { key: 'checkbox', label: 'Select', locked: true },
                   { key: 'name', label: 'Name', locked: true },
                   { key: 'type', label: 'Type' },
-                  { key: 'brand', label: 'Brand' },
+                  { key: 'config_file', label: 'Config File' },
                   { key: 'customer', label: 'Customer' },
                   { key: 'site', label: 'Site' },
                   { key: 'gateway', label: 'Gateway' },
@@ -265,7 +266,7 @@ function exportMeters() {
                 </TableHead>
                 <SortableTableHead column="name" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Name</SortableTableHead>
                 <SortableTableHead v-if="columnPrefs.isColumnVisible('type')" column="type" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Type</SortableTableHead>
-                <SortableTableHead v-if="columnPrefs.isColumnVisible('brand')" column="brand" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Brand</SortableTableHead>
+                <TableHead v-if="columnPrefs.isColumnVisible('config_file')">Config File</TableHead>
                 <SortableTableHead v-if="columnPrefs.isColumnVisible('customer')" column="customer_name" :sort-column="sorting.sortColumn" :sort-direction="sorting.sortDirection" @sort="handleSort">Customer</SortableTableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('site')">Site</TableHead>
                 <TableHead v-if="columnPrefs.isColumnVisible('gateway')">Gateway</TableHead>
@@ -286,7 +287,7 @@ function exportMeters() {
                 </TableCell>
                 <TableCell class="font-medium">{{ meter.name }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('type')">{{ meter.type }}</TableCell>
-                <TableCell v-if="columnPrefs.isColumnVisible('brand')">{{ meter.brand }}</TableCell>
+                <TableCell v-if="columnPrefs.isColumnVisible('config_file')" class="font-mono text-xs">{{ meter.configuration_file?.meter_model || '—' }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('customer')">{{ meter.customer_name }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('site')">{{ meter.gateway.site.code }}</TableCell>
                 <TableCell v-if="columnPrefs.isColumnVisible('gateway')">{{ meter.gateway.serial_number }}</TableCell>

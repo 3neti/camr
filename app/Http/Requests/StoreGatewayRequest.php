@@ -23,6 +23,7 @@ class StoreGatewayRequest extends FormRequest
             'ip_netmask' => ['nullable', 'string', 'max:50'],
             'ip_gateway' => ['nullable', 'ip'],
             'server_ip' => ['nullable', 'ip'],
+            'site_code' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'update_csv' => ['boolean'],
             'update_site_code' => ['boolean'],

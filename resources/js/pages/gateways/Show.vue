@@ -283,7 +283,7 @@ const inactiveMeters = props.gateway.meters.filter((m) => !m.last_log_update || 
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Brand</TableHead>
+                    <TableHead>Config File</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Status</TableHead>
@@ -303,10 +303,10 @@ const inactiveMeters = props.gateway.meters.filter((m) => !m.last_log_update || 
                     @click="router.visit(meters.show({ meter: meter.id }).url)"
                   >
                     <TableCell class="font-medium">{{ meter.name }}</TableCell>
-                    <TableCell>{{ meter.type }}</TableCell>
-                    <TableCell>{{ meter.brand }}</TableCell>
-                    <TableCell>{{ meter.customer_name }}</TableCell>
-                    <TableCell>{{ meter.location.code }}</TableCell>
+                    <TableCell>{{ meter.type || '—' }}</TableCell>
+                    <TableCell class="font-mono text-xs">{{ meter.configuration_file?.meter_model || '—' }}</TableCell>
+                    <TableCell>{{ meter.customer_name || '—' }}</TableCell>
+                    <TableCell>{{ meter.location?.code || '—' }}</TableCell>
                     <TableCell>
                       <Badge :variant="meter.status === 'Active' ? 'default' : 'secondary'">
                         {{ meter.status }}
