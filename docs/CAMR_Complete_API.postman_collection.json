@@ -1,0 +1,564 @@
+{
+  "info": {
+    "name": "CAMR Complete API Collection",
+    "description": "Complete collection of all CAMR API endpoints including meter data ingestion, gateway polling (modern & legacy), analytics, and backward compatibility endpoints. Base URL: http://camr.test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "camr-complete-api-v1",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://camr.test",
+      "type": "string",
+      "description": "Base URL for all endpoints"
+    },
+    {
+      "key": "gatewayMac",
+      "value": "4e:b8:61:88:74:4f",
+      "type": "string",
+      "description": "Sample gateway MAC address for testing"
+    }
+  ],
+  "item": [
+    {
+      "name": "📊 Analytics API",
+      "description": "Real-time power monitoring, energy trends, power quality analysis, demand tracking, site aggregation, and top consumers reporting",
+      "item": [
+        {
+          "name": "Real-time Power",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/realtime-power",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "realtime-power"],
+              "query": [
+                {"key": "site_id", "value": "1", "description": "Filter by specific site ID", "disabled": true},
+                {"key": "meter_ids[]", "value": "153", "description": "Filter by specific meter ID", "disabled": true}
+              ]
+            },
+            "description": "Get current power consumption and electrical parameters for active meters."
+          }
+        },
+        {
+          "name": "Energy Trend - Daily",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/energy-trend?period=daily&start_date=2025-11-13&end_date=2025-11-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "energy-trend"],
+              "query": [
+                {"key": "period", "value": "daily"},
+                {"key": "start_date", "value": "2025-11-13"},
+                {"key": "end_date", "value": "2025-11-20"}
+              ]
+            },
+            "description": "Get energy consumption trends aggregated by day."
+          }
+        },
+        {
+          "name": "Energy Trend - Hourly",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/energy-trend?period=hourly&start_date=2025-11-20&end_date=2025-11-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "energy-trend"],
+              "query": [
+                {"key": "period", "value": "hourly"},
+                {"key": "start_date", "value": "2025-11-20"},
+                {"key": "end_date", "value": "2025-11-20"}
+              ]
+            },
+            "description": "Get energy consumption trends aggregated by hour."
+          }
+        },
+        {
+          "name": "Power Quality",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/power-quality?start_date=2025-11-19&end_date=2025-11-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "power-quality"],
+              "query": [
+                {"key": "start_date", "value": "2025-11-19"},
+                {"key": "end_date", "value": "2025-11-20"}
+              ]
+            },
+            "description": "Get detailed power quality metrics including voltage, current, power factor by phase."
+          }
+        },
+        {
+          "name": "Demand Analysis",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/demand-analysis?start_date=2025-11-01&end_date=2025-11-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "demand-analysis"],
+              "query": [
+                {"key": "start_date", "value": "2025-11-01"},
+                {"key": "end_date", "value": "2025-11-20"}
+              ]
+            },
+            "description": "Get maximum demand tracking and peak analysis."
+          }
+        },
+        {
+          "name": "Site Aggregation - By Site",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/site-aggregation?group_by=site&start_date=2025-11-19&end_date=2025-11-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "site-aggregation"],
+              "query": [
+                {"key": "group_by", "value": "site"},
+                {"key": "start_date", "value": "2025-11-19"},
+                {"key": "end_date", "value": "2025-11-20"}
+              ]
+            },
+            "description": "Get energy consumption aggregated by site."
+          }
+        },
+        {
+          "name": "Top Consumers",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json", "type": "text"}],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/top-consumers?start_date=2025-11-19&end_date=2025-11-20&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "top-consumers"],
+              "query": [
+                {"key": "start_date", "value": "2025-11-19"},
+                {"key": "end_date", "value": "2025-11-20"},
+                {"key": "limit", "value": "10"}
+              ]
+            },
+            "description": "Get ranked list of top energy consuming meters."
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚡ Meter Reading Ingestion",
+      "description": "Endpoints for gateways/meters to POST real-time electrical measurements (voltage, current, power, energy). Supports both modern API and legacy PHP URLs.",
+      "item": [
+        {
+          "name": "Modern API - High Power Factor Sample",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/x-www-form-urlencoded"}],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {"key": "save_to_meter_data", "value": "1"},
+                {"key": "location", "value": "SMSS"},
+                {"key": "meter_id", "value": "030011100592"},
+                {"key": "datetime", "value": "{{current_datetime}}"},
+                {"key": "vrms_a", "value": "219.4"},
+                {"key": "vrms_b", "value": "223.6"},
+                {"key": "vrms_c", "value": "224.9"},
+                {"key": "irms_a", "value": "28.7"},
+                {"key": "irms_b", "value": "14.1"},
+                {"key": "irms_c", "value": "22.2"},
+                {"key": "freq", "value": "60.1"},
+                {"key": "pf", "value": "0.98"},
+                {"key": "watt", "value": "13.88"},
+                {"key": "va", "value": "14.09"},
+                {"key": "var", "value": "2.44"},
+                {"key": "wh_total", "value": "61450.9102"},
+                {"key": "soft_rev", "value": "2.10"}
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/meter-readings/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "meter-readings", "ingest"]
+            },
+            "description": "Modern API endpoint. High power factor (0.98) example."
+          }
+        },
+        {
+          "name": "Legacy PHP - High Power Factor Sample",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/x-www-form-urlencoded"}],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {"key": "save_to_meter_data", "value": "1"},
+                {"key": "location", "value": "SMSS"},
+                {"key": "meter_id", "value": "030011100592"},
+                {"key": "datetime", "value": "{{current_datetime}}"},
+                {"key": "vrms_a", "value": "219.4"},
+                {"key": "vrms_b", "value": "223.6"},
+                {"key": "vrms_c", "value": "224.9"},
+                {"key": "irms_a", "value": "28.7"},
+                {"key": "irms_b", "value": "14.1"},
+                {"key": "irms_c", "value": "22.2"},
+                {"key": "freq", "value": "60.1"},
+                {"key": "pf", "value": "0.98"},
+                {"key": "watt", "value": "13.88"},
+                {"key": "va", "value": "14.09"},
+                {"key": "var", "value": "2.44"},
+                {"key": "wh_total", "value": "61450.9102"},
+                {"key": "soft_rev", "value": "2.10"}
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/http_post_server.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["http_post_server.php"]
+            },
+            "description": "Legacy PHP endpoint. Routes to same controller as modern API."
+          }
+        },
+        {
+          "name": "Modern API - Poor Power Factor Sample",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/x-www-form-urlencoded"}],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {"key": "save_to_meter_data", "value": "1"},
+                {"key": "location", "value": "SMSL"},
+                {"key": "meter_id", "value": "030011100608"},
+                {"key": "datetime", "value": "{{current_datetime}}"},
+                {"key": "pf", "value": "0.55", "description": "Poor power factor"},
+                {"key": "watt", "value": "6.34"},
+                {"key": "wh_total", "value": "23945.3201"}
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/meter-readings/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "meter-readings", "ingest"]
+            },
+            "description": "Poor power factor (0.55) example showing high reactive power."
+          }
+        },
+        {
+          "name": "Test Connection (No Save)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/x-www-form-urlencoded"}],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {"key": "save_to_meter_data", "value": "0", "description": "Don't save"},
+                {"key": "meter_id", "value": "TEST_METER"},
+                {"key": "datetime", "value": "{{current_datetime}}"},
+                {"key": "watt", "value": "1.0"}
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/meter-readings/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "meter-readings", "ingest"]
+            },
+            "description": "Test connectivity without saving data."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Gateway Polling - Modern API",
+      "description": "Modern RESTful endpoints for gateway polling workflows. Gateways poll every 10 minutes for configuration updates.",
+      "item": [
+        {
+          "name": "CSV Meter List Updates",
+          "item": [
+            {
+              "name": "1. Check CSV Update Required",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/check/csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "check", "csv"]
+                },
+                "description": "Returns '1' if update available, '0' otherwise."
+              }
+            },
+            {
+              "name": "2. Download CSV Meter List",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "csv"]
+                },
+                "description": "Download CSV with up to 32 active meters."
+              }
+            },
+            {
+              "name": "3. Reset CSV Update Flag",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/csv/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "csv", "reset"]
+                },
+                "description": "Gateway signals completion. Returns 'OK'."
+              }
+            }
+          ],
+          "description": "3-step workflow for meter list updates"
+        },
+        {
+          "name": "Site Code Updates",
+          "item": [
+            {
+              "name": "1. Check Site Code Update Required",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/check/site-code",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "check", "site-code"]
+                },
+                "description": "Returns '1' or '0'."
+              }
+            },
+            {
+              "name": "2. Download Site Code",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/site-code",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "site-code"]
+                },
+                "description": "Returns: location = \"SITE_CODE\""
+              }
+            },
+            {
+              "name": "3. Reset Site Code Update Flag",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/site-code/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "site-code", "reset"]
+                },
+                "description": "Returns 'OK'."
+              }
+            }
+          ],
+          "description": "3-step workflow for site code updates"
+        },
+        {
+          "name": "Force Load Profile",
+          "item": [
+            {
+              "name": "1. Check Force Load Profile",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/check/load-profile",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "check", "load-profile"]
+                },
+                "description": "Returns '1' if immediate upload required."
+              }
+            },
+            {
+              "name": "2. Reset Force Load Profile Flag",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/gateway/{{gatewayMac}}/load-profile/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "gateway", "{{gatewayMac}}", "load-profile", "reset"]
+                },
+                "description": "Returns 'OK'."
+              }
+            }
+          ],
+          "description": "2-step workflow for forced load profile upload"
+        },
+        {
+          "name": "Get Server Time",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/server-time",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "server-time"]
+            },
+            "description": "Returns current server time: YYYY-MM-DD HH:MM:SS"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Gateway Polling - Legacy PHP",
+      "description": "Legacy PHP endpoint URLs for backward compatibility with deployed gateways. Routes to same controllers as modern API.",
+      "item": [
+        {
+          "name": "CSV Meter List Updates (Legacy)",
+          "item": [
+            {
+              "name": "1. Check CSV Update (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/get_update_csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "get_update_csv"]
+                },
+                "description": "Legacy URL. Returns '1' or '0'."
+              }
+            },
+            {
+              "name": "2. Get CSV Content (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/get_content_csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "get_content_csv"]
+                },
+                "description": "Legacy URL. Returns CSV content."
+              }
+            },
+            {
+              "name": "3. Reset CSV Update Flag (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/reset_update_csv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "reset_update_csv"]
+                },
+                "description": "Legacy URL. Returns 'OK'."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Site Code Updates (Legacy)",
+          "item": [
+            {
+              "name": "1. Check Site Code Update (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/get_update_location",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "get_update_location"]
+                },
+                "description": "Legacy URL. Returns '1' or '0'."
+              }
+            },
+            {
+              "name": "2. Get Site Code (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/get_content_location",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "get_content_location"]
+                },
+                "description": "Legacy URL. Returns: location = \"CODE\""
+              }
+            },
+            {
+              "name": "3. Reset Site Code Update Flag (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/reset_update_location",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "reset_update_location"]
+                },
+                "description": "Legacy URL. Returns 'OK'."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Force Load Profile (Legacy)",
+          "item": [
+            {
+              "name": "1. Check Force Load Profile (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/force_lp",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "force_lp"]
+                },
+                "description": "Legacy URL. Returns '1' or '0'."
+              }
+            },
+            {
+              "name": "2. Reset Force Load Profile Flag (Legacy)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/rtu/index.php/rtu/rtu_check_update/{{gatewayMac}}/reset_force_lp",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["rtu", "index.php", "rtu", "rtu_check_update", "{{gatewayMac}}", "reset_force_lp"]
+                },
+                "description": "Legacy URL. Returns 'OK'."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Server Time (Legacy)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/check_time.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["check_time.php"]
+            },
+            "description": "Legacy URL. Returns: YYYY-MM-DD HH:MM:SS"
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Generate current timestamp in YYYY-MM-DD HH:MM:SS format",
+          "const now = new Date();",
+          "const year = now.getFullYear();",
+          "const month = String(now.getMonth() + 1).padStart(2, '0');",
+          "const day = String(now.getDate()).padStart(2, '0');",
+          "const hours = String(now.getHours()).padStart(2, '0');",
+          "const minutes = String(now.getMinutes()).padStart(2, '0');",
+          "const seconds = String(now.getSeconds()).padStart(2, '0');",
+          "const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;",
+          "pm.environment.set('current_datetime', timestamp);",
+          "",
+          "// Note: Analytics APIs require Laravel session authentication",
+          "// Make sure you're authenticated in your browser before testing"
+        ]
+      }
+    }
+  ]
+}

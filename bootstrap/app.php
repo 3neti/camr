@@ -20,6 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // Exclude legacy IoT device endpoints from CSRF verification
+        // These endpoints are called by deployed gateways/meters without CSRF tokens
+        $middleware->validateCsrfTokens(except: [
+            '/http_post_server.php',
+            '/rtu/index.php/*',
+            '/check_time.php',
+        ]);
+
         $middleware->web(append: [
             HandleAppearance::class,
             ManageSiteContext::class,

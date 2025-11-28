@@ -71,6 +71,12 @@ Route::middleware(['auth'])->group(function () {
 // No authentication - maintains backward compatibility with deployed IoT devices
 
 use App\Http\Controllers\Api\GatewayPollingController;
+use App\Http\Controllers\Api\MeterReadingController;
+
+// Meter reading ingestion (legacy URL)
+// Legacy PHP endpoint was http_post_server.php - now routes to modern API controller
+Route::post('/http_post_server.php', [MeterReadingController::class, 'ingest'])
+    ->name('legacy.meter-readings.ingest');
 
 // CSV meter list updates (legacy URLs)
 Route::get('/rtu/index.php/rtu/rtu_check_update/{mac}/get_update_csv', [GatewayPollingController::class, 'checkCsvUpdate'])
